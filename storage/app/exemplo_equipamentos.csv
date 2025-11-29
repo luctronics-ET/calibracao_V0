@@ -1,0 +1,6 @@
+divisao_origem,tipo,categoria,fabricante,modelo,serie,codigo_interno,descricao,local_fisico_atual,ciclo_meses,criticidade,classe_metrologica,resolucao,faixa_medicao,mpe,norma_aplicavel
+DM,Multímetro Digital,Elétrica,Fluke,87V,12345678,MULT-001,Multímetro Digital True RMS,Laboratório A,12,alta,Classe 1,0.001V,0-1000V,±0.5%,IEC 61010
+DM,Paquímetro Digital,Dimensional,Mitutoyo,CD-6 CSX,98765432,PAQ-001,Paquímetro Digital 150mm,Sala de Medição,24,media,Classe II,0.01mm,0-150mm,±0.02mm,ISO 3599
+DT,Termômetro Digital,Temperatura,Minipa,MT-520,45678912,TERM-001,Termômetro Digital Infravermelho,Almoxarifado,12,media,Classe B,0.1°C,-50 a 500°C,±1.5°C,IEC 60751
+DM,Micrômetro Externo,Dimensional,Starrett,436M,78912345,MIC-001,Micrômetro Externo 0-25mm,Laboratório B,24,alta,Classe I,0.001mm,0-25mm,±0.002mm,DIN 863
+DP,Manômetro Digital,Pressão,Presys,T-610,32165498,MAN-001,Manômetro Digital 0-10 bar,Oficina,12,critica,Classe 0.05,0.001bar,0-10bar,±0.05%,ASME B40.100

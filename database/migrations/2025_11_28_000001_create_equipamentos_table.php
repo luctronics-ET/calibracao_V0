@@ -1,10 +1,13 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateEquipamentosTable extends Migration {
-    public function up() {
+class CreateEquipamentosTable extends Migration
+{
+    public function up()
+    {
         Schema::create('equipamentos', function (Blueprint $table) {
             $table->id();
             $table->string('divisao_origem')->nullable();
@@ -23,10 +26,14 @@ class CreateEquipamentosTable extends Migration {
             $table->string('faixa_medicao')->nullable();
             $table->string('mpe')->nullable();
             $table->string('norma_aplicavel')->nullable();
+            $table->string('foto')->nullable();
+            $table->date('data_proxima_calibracao')->nullable();
+            $table->string('status_calibracao')->default('em_dia');
             $table->timestamps();
         });
     }
-    public function down() {
+    public function down()
+    {
         Schema::dropIfExists('equipamentos');
     }
 }

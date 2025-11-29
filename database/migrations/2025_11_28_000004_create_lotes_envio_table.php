@@ -1,10 +1,13 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLotesEnvioTable extends Migration {
-    public function up() {
+class CreateLotesEnvioTable extends Migration
+{
+    public function up()
+    {
         Schema::create('lotes_envio', function (Blueprint $table) {
             $table->id();
             $table->string('codigo_lote')->nullable();
@@ -12,11 +15,13 @@ class CreateLotesEnvioTable extends Migration {
             $table->date('data_retorno')->nullable();
             $table->string('responsavel_envio')->nullable();
             $table->string('transportadora')->nullable();
+            $table->enum('status', ['preparacao', 'enviado', 'em_calibracao', 'retornado', 'cancelado'])->default('preparacao');
             $table->text('observacoes')->nullable();
             $table->timestamps();
         });
     }
-    public function down() {
+    public function down()
+    {
         Schema::dropIfExists('lotes_envio');
     }
 }

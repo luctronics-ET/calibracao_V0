@@ -87,5 +87,11 @@
       "name": "Calibracao Database",
       "database": "${workspaceFolder}/database/database.sqlite"
     }
-  ]
+  ],
+  "[blade]": {
+    "editor.defaultFormatter": "DEVSENSE.phptools-vscode"
+  },
+  "[dockerfile]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-containers"
+  }
 }

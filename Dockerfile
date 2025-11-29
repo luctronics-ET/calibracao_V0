@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libzip-dev \
     zip \
     unzip \
     nodejs \
@@ -18,7 +19,7 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalar extensões PHP
-RUN docker-php-ext-install pdo_sqlite mbstring exif pcntl bcmath gd
+RUN docker-php-ext-install pdo_sqlite mbstring exif pcntl bcmath gd zip
 
 # Obter Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -28,6 +29,9 @@ WORKDIR /var/www
 
 # Copiar arquivos existentes
 COPY . /var/www
+
+# Usar .env.docker como .env no container
+RUN cp /var/www/.env.docker /var/www/.env
 
 # Configurar permissões
 RUN chown -R www-data:www-data /var/www \
