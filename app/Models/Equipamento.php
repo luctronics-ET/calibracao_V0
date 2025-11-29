@@ -20,12 +20,19 @@ class Equipamento extends Model
     {
         return $this->hasMany(Calibracao::class);
     }
+    
     public function parametros()
     {
         return $this->hasMany(ParametroMetrologico::class);
     }
+    
     public function lotes()
     {
         return $this->belongsToMany(LoteEnvio::class, 'lote_itens');
+    }
+    
+    public function loteItens()
+    {
+        return $this->hasMany(LoteItem::class);
     }
 }
