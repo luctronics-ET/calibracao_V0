@@ -1,0 +1,18 @@
+{
+  "recommendations": [
+    "github.copilot",
+    "github.copilot-chat",
+    "bmewburn.vscode-intelephense-client",
+    "vue.volar",
+    "onecentlin.laravel-blade",
+    "onecentlin.laravel5-snippets",
+    "alexcvzz.vscode-sqlite",
+    "esbenp.prettier-vscode",
+    "amiralizadeh9480.laravel-extra-intellisense",
+    "ryannaddy.laravel-artisan",
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-sqlite",
+    "eamodio.gitlens",
+    "ms-vscode-remote.remote-containers"
+  ]
+}

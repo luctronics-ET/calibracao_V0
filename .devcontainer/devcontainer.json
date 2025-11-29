@@ -1,0 +1,32 @@
+{
+  "name": "Laravel + Vue Development",
+  "image": "mcr.microsoft.com/devcontainers/php:1-8.3-bullseye",
+
+  "features": {
+    "ghcr.io/devcontainers/features/php:1": {
+      "version": "8.3",
+      "installComposer": true
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "github.copilot",
+        "github.copilot-chat",
+        "bmewburn.vscode-intelephense-client",
+        "vue.volar",
+        "onecentlin.laravel-blade",
+        "onecentlin.laravel5-snippets",
+        "alexcvzz.vscode-sqlite",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+
+  "forwardPorts": [8000, 5173]
+}

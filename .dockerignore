@@ -1,0 +1,48 @@
+# Docker ignore
+.git
+.gitignore
+.github
+.gitattributes
+*.md
+!README*.md
+
+# Development
+node_modules/
+vendor/
+.vscode/
+.idea/
+*.log
+*.cache
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+/public/build
+/public/hot
+/public/storage
+
+# Testing
+/coverage
+.phpunit.result.cache
+
+# Storage and cache
+/storage/*.key
+/storage/logs/*
+!/storage/logs/.gitignore
+/storage/framework/cache/*
+!/storage/framework/cache/.gitignore
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/storage/framework/views/*
+!/storage/framework/views/.gitignore
+
+# Database
+*.sqlite
+*.sqlite-journal
+
+# OS files
+.DS_Store
+Thumbs.db

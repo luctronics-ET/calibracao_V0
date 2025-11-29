@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Laravel Server",
+      "type": "shell",
+      "command": "php artisan serve --host=127.0.0.1 --port=8000",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Start Vite Dev Server",
+      "type": "shell",
+      "command": "npm run dev",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Run Migrations",
+      "type": "shell",
+      "command": "php artisan migrate",
+      "problemMatcher": []
+    },
+    {
+      "label": "Clear Cache",
+      "type": "shell",
+      "command": "php artisan cache:clear && php artisan config:clear",
+      "problemMatcher": []
+    },
+    {
+      "label": "Start All Servers",
+      "dependsOn": ["Start Laravel Server", "Start Vite Dev Server"],
+      "problemMatcher": []
+    }
+  ]
+}

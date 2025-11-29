@@ -1,0 +1,91 @@
+{
+  "php.validate.executablePath": "/usr/bin/php",
+  "php.suggest.basic": false,
+
+  "intelephense.files.maxSize": 5000000,
+  "intelephense.environment.includePaths": ["${workspaceFolder}/vendor"],
+  "intelephense.stubs": [
+    "apache",
+    "bcmath",
+    "Core",
+    "curl",
+    "date",
+    "dom",
+    "fileinfo",
+    "filter",
+    "hash",
+    "iconv",
+    "json",
+    "libxml",
+    "mbstring",
+    "openssl",
+    "pcre",
+    "PDO",
+    "pdo_sqlite",
+    "Phar",
+    "SimpleXML",
+    "sqlite3",
+    "standard",
+    "tokenizer",
+    "xml",
+    "xmlreader",
+    "xmlwriter",
+    "zip",
+    "zlib"
+  ],
+
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+
+  "[php]": {
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
+    "editor.formatOnSave": true
+  },
+
+  "[vue]": {
+    "editor.defaultFormatter": "Vue.volar"
+  },
+
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  "files.associations": {
+    "*.blade.php": "blade",
+    "*.env*": "dotenv"
+  },
+
+  "files.exclude": {
+    "**/vendor": true,
+    "**/node_modules": true,
+    "**/.git": true
+  },
+
+  "search.exclude": {
+    "**/vendor": true,
+    "**/node_modules": true,
+    "**/storage": true,
+    "**/public/build": true
+  },
+
+  "emmet.includeLanguages": {
+    "blade": "html",
+    "vue": "html"
+  },
+
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "name": "Calibracao Database",
+      "database": "${workspaceFolder}/database/database.sqlite"
+    }
+  ]
+}
