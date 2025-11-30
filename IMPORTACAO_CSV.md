@@ -14,30 +14,31 @@ Análise e importação de dados do arquivo `calibracao.csv` contendo 484 equipa
 
 ### Mapeamento de Colunas
 
-| Coluna | Campo | Descrição |
-|--------|-------|-----------|
-| 0 | equipamento_classe | Classe do equipamento (ELE, MEC, etc) |
-| 1 | equipamento_tipo | Tipo (FONTE DC, TORQUÍMETRO, etc) |
-| 2 | equipamento_fabricante | Fabricante |
-| 3 | equipamento_modelo | Modelo |
-| 4 | equipamento_serial | Número de série |
-| 14 | equipamento_especificacoes | Especificações técnicas |
-| 27 | equipamento_ciclo_meses | Ciclo de calibração (meses) |
-| 28 | equipamento_codigo_interno | Código interno único |
-| 32 | equipamento_patrimonio | Número de patrimônio |
-| 50 | data_ultima_calibracao | Data da última calibração |
-| 51 | data_validade_certificado | Validade do certificado |
-| 53 | data_proxima_calibracao | Próxima calibração |
-| 56 | custo_calibracao | Custo da calibração |
-| 58 | status_equipamento | Status (CALIBRADO, DESCALIBRADO) |
-| 59 | certificado_numero | Número do certificado |
-| 60 | laboratorio_nome | Nome do laboratório |
-| 63 | orcamento_valor | Valor orçado |
-| 66 | setor | Setor responsável |
+| Coluna | Campo                      | Descrição                             |
+| ------ | -------------------------- | ------------------------------------- |
+| 0      | equipamento_classe         | Classe do equipamento (ELE, MEC, etc) |
+| 1      | equipamento_tipo           | Tipo (FONTE DC, TORQUÍMETRO, etc)     |
+| 2      | equipamento_fabricante     | Fabricante                            |
+| 3      | equipamento_modelo         | Modelo                                |
+| 4      | equipamento_serial         | Número de série                       |
+| 14     | equipamento_especificacoes | Especificações técnicas               |
+| 27     | equipamento_ciclo_meses    | Ciclo de calibração (meses)           |
+| 28     | equipamento_codigo_interno | Código interno único                  |
+| 32     | equipamento_patrimonio     | Número de patrimônio                  |
+| 50     | data_ultima_calibracao     | Data da última calibração             |
+| 51     | data_validade_certificado  | Validade do certificado               |
+| 53     | data_proxima_calibracao    | Próxima calibração                    |
+| 56     | custo_calibracao           | Custo da calibração                   |
+| 58     | status_equipamento         | Status (CALIBRADO, DESCALIBRADO)      |
+| 59     | certificado_numero         | Número do certificado                 |
+| 60     | laboratorio_nome           | Nome do laboratório                   |
+| 63     | orcamento_valor            | Valor orçado                          |
+| 66     | setor                      | Setor responsável                     |
 
 ### Exemplos de Dados
 
 **Primeiro equipamento (linha 4)**:
+
 ```json
 {
   "equipamento_classe": "ELE",
@@ -57,6 +58,7 @@ Análise e importação de dados do arquivo `calibracao.csv` contendo 484 equipa
 ```
 
 **Último equipamento (linha 583)**:
+
 ```json
 {
   "equipamento_classe": "MEC",
@@ -82,6 +84,7 @@ Análise e importação de dados do arquivo `calibracao.csv` contendo 484 equipa
 Campos adicionados à tabela `equipamentos`:
 
 **Dados do CSV**:
+
 - `classe` - Classificação (ELE, MEC, etc)
 - `especificacoes` - Especificações técnicas
 - `patrimonio` - Número de patrimônio
@@ -89,25 +92,30 @@ Campos adicionados à tabela `equipamentos`:
 - `setor` - Setor responsável
 
 **Dimensões Físicas**:
+
 - `altura`, `largura`, `comprimento` (decimal)
 - `tensao`, `potencia` (string)
 
 **Documentação**:
+
 - `manual_pdf` - Caminho do manual
 - `link_fabricante` - Link do fabricante
 - `instrucao_uso`, `instrucao_operacao`, `instrucao_seguranca` (text)
 
 **Metrologia Avançada**:
+
 - `incerteza_nominal` - Incerteza nominal
 - `categoria_metrologica` - Categoria metrológica
 
 **Financeiro**:
+
 - `valor_aquisicao` - Valor de aquisição
 - `data_aquisicao` - Data de aquisição
 - `custo_estimado` - Custo estimado de calibração
 - `responsavel` - Responsável pelo equipamento
 
 **Matriz IGP (Índice de Grau de Prioridade)**:
+
 - `frequencia_uso` (tinyint 1-3)
 - `necessidade_critica` (tinyint 1-3)
 - `abundancia` (tinyint 1-3)
@@ -125,6 +133,7 @@ Campos adicionados à tabela `equipamentos`:
 **Assinatura**: `php artisan import:calibracao-csv {file=calibracao.csv}`
 
 **Funcionalidades**:
+
 - Lê arquivo CSV com 67 colunas
 - Pula primeiras 3 linhas (headers)
 - Mapeia dados para modelo normalizado
@@ -134,12 +143,14 @@ Campos adicionados à tabela `equipamentos`:
 - Vincula certificados
 
 **Validações**:
+
 - Tipo de equipamento obrigatório
 - Limpeza de valores (#VALOR!, NULL, vazios)
 - Parse de datas (DD/MM/YY e DD/MM/YYYY)
 - Parse de valores decimais (vírgula → ponto)
 
 **Tratamento de Erros**:
+
 - Transação DB (rollback em caso de erro)
 - Log de erros por linha
 - Estatísticas detalhadas ao final
@@ -149,6 +160,7 @@ Campos adicionados à tabela `equipamentos`:
 ### 3. Estatísticas Esperadas
 
 Após importação completa:
+
 - **Equipamentos**: ~484 registros
 - **Laboratórios**: ~5-10 únicos (CMASM e outros)
 - **Calibrações**: ~484 registros históricos
@@ -157,6 +169,7 @@ Após importação completa:
 ## Próximos Passos
 
 ### Imediato
+
 1. ✅ Criar migration com campos do CSV
 2. ✅ Criar comando de importação
 3. 🔄 Rebuild Docker image
@@ -164,6 +177,7 @@ Após importação completa:
 5. ⏳ Validar dados importados
 
 ### Curto Prazo
+
 1. Criar Observer para cálculo automático de IGP
 2. Implementar Service para gestão de rastreabilidade
 3. Expandir modelo de certificados (ISO/IEC 17025)
@@ -171,6 +185,7 @@ Após importação completa:
 5. Implementar filtros avançados por IGP/classificação
 
 ### Médio Prazo
+
 1. Criar módulo Metrologia (UnidadeMedida, Grandeza, Procedimento)
 2. Expandir modelo de Calibração (measurement_parameters, reference_standards)
 3. Sistema de upload de certificados PDF
@@ -186,28 +201,32 @@ IGP = (frequencia_uso * necessidade_critica * criticidade_metrologica) / (abunda
 ```
 
 **Classificação**:
+
 - **Alta**: IGP >= 20 (equipamentos críticos, prioridade máxima)
 - **Média**: IGP entre 10-19 (equipamentos importantes)
 - **Baixa**: IGP < 10 (equipamentos de rotina)
 
 **Exemplo**:
+
 - Frequência: 3 (alta)
 - Necessidade: 3 (crítica)
 - Abundância: 1 (único)
 - Criticidade Metrol: 3 (alta)
 - Custo Indisp: 3 (alto)
 
-IGP = (3 * 3 * 3) / (1 * 3) = 27 / 3 = **9 → Classificação: MÉDIA**
+IGP = (3 _ 3 _ 3) / (1 \* 3) = 27 / 3 = **9 → Classificação: MÉDIA**
 
 ## Integração com Sistema Atual
 
 ### Tabelas Afetadas
+
 - ✅ `equipamentos` - 27 novos campos
 - ⏳ `laboratorios` - normalização de dados
 - ⏳ `calibracoes` - histórico importado
 - ⏳ `parametros_metrologicos` - futura implementação
 
 ### Relacionamentos
+
 ```
 equipamentos (1) → (N) calibracoes
 calibracoes (N) → (1) laboratorios
@@ -215,6 +234,7 @@ equipamentos (N) → (N) lote_itens
 ```
 
 ### API Endpoints (futuros)
+
 ```
 GET /api/v1/equipamentos?classe=ELE
 GET /api/v1/equipamentos?igp_min=20
@@ -225,22 +245,27 @@ GET /api/v1/dashboard/por-igp
 ## Observações Técnicas
 
 ### Formato de Datas no CSV
+
 - Formato encontrado: `DD/MM/YY` e `DD/MM/YYYY`
 - Anos com 2 dígitos: assumir 20XX
 - Parsing: Carbon `createFromFormat('d/m/Y')`
 
 ### Valores Inválidos
+
 - `#VALOR!` - erro de fórmula Excel, tratado como NULL
 - Campos vazios - NULL
 - Vírgulas em decimais - convertidas para ponto
 
 ### Performance
+
 - Processamento em lote (transação única)
 - Progress output a cada 50 linhas
 - Tempo estimado: ~30-60 segundos para 484 registros
 
 ### Backup
+
 Antes da importação:
+
 ```bash
 docker compose exec app php artisan db:backup
 ```

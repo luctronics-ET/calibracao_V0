@@ -54,8 +54,8 @@ trait Auditable
             'usuario_id' => Auth::id() ?? null,
             'acao' => $action,
             'tabela' => $this->getTable(),
-            'registro_id' => $this->id,
-            'dados' => json_encode($changes),
+            'referencia_id' => $this->id,
+            'detalhe' => json_encode($changes),
             'ip' => request()->ip(),
             'user_agent' => request()->userAgent()
         ]);
