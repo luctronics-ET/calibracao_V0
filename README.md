@@ -40,7 +40,7 @@ Sistema completo para gestão de calibração de equipamentos com controle de pr
 Sistema automático de priorização de equipamentos baseado em 5 critérios:
 
 - **Frequência de Uso** (1-3): baixa, média, alta
-- **Necessidade Crítica** (1-3): baixa, média, alta  
+- **Necessidade Crítica** (1-3): baixa, média, alta
 - **Abundância** (1-3): único, poucos, muitos
 - **Criticidade Metrológica** (1-3): baixa, média, alta
 - **Custo de Indisponibilidade** (1-3): baixo, médio, alto
@@ -48,6 +48,7 @@ Sistema automático de priorização de equipamentos baseado em 5 critérios:
 **Fórmula**: IGP = (freq_uso × nec_critica × crit_metrol) ÷ (abundancia × custo_indisp)
 
 **Classificação Automática**:
+
 - **Alta** (IGP ≥ 20): Prioridade máxima
 - **Média** (IGP 10-19): Importante
 - **Baixa** (IGP < 10): Rotina
@@ -107,9 +108,9 @@ docker compose exec app php artisan db:seed
 
 ### Credenciais Padrão
 
-- **Admin**: admin@calibracao.com / admin123
-- **Técnico**: tecnico@calibracao.com / tecnico123
-- **Visualizador**: visualizador@calibracao.com / visualizador123
+- **Admin**: <admin@calibracao.com> / admin123
+- **Técnico**: <tecnico@calibracao.com> / tecnico123
+- **Visualizador**: <visualizador@calibracao.com> / visualizador123
 
 ## 📋 Documentação Completa
 
@@ -384,7 +385,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 📞 Suporte
 
-- 📧 Email: suporte@calibracao.com
+- 📧 Email: <suporte@calibracao.com>
 - 📚 Documentação: [INSTALL.md](INSTALL.md)
 - 🐛 Issues: [GitHub Issues](https://github.com/luctronics-ET/calibracao_V0/issues)
 
