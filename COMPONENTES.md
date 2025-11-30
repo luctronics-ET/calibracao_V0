@@ -3,10 +3,11 @@
 ## 📦 Componentes Disponíveis
 
 ### 1. Card (`<x-card>`)
+
 Card reutilizável com título e ícone opcional.
 
 ```blade
-<x-card 
+<x-card
     title="Identificação"
     :icon="'<svg>...</svg>'"
     iconBg="bg-indigo-100"
@@ -17,10 +18,11 @@ Card reutilizável com título e ícone opcional.
 ```
 
 ### 2. Table (`<x-table>`)
+
 Tabela responsiva com striped e hover.
 
 ```blade
-<x-table 
+<x-table
     :headers="['Nome', 'Email', 'Status']"
     :rows="[
         ['João Silva', 'joao@email.com', '<x-badge variant=\'success\'>Ativo</x-badge>'],
@@ -32,10 +34,11 @@ Tabela responsiva com striped e hover.
 ```
 
 ### 3. Input (`<x-input>`)
+
 Campo de formulário com label e validação.
 
 ```blade
-<x-input 
+<x-input
     label="Nome Completo"
     name="nome"
     type="text"
@@ -45,10 +48,11 @@ Campo de formulário com label e validação.
 ```
 
 ### 4. Select (`<x-select>`)
+
 Select dropdown com opções.
 
 ```blade
-<x-select 
+<x-select
     label="Criticidade"
     name="criticidade"
     :options="[
@@ -63,6 +67,7 @@ Select dropdown com opções.
 ```
 
 ### 5. Button (`<x-button>`)
+
 Botão com variantes e tamanhos.
 
 ```blade
@@ -70,8 +75,8 @@ Botão com variantes e tamanhos.
     Salvar
 </x-button>
 
-<x-button 
-    variant="danger" 
+<x-button
+    variant="danger"
     :icon="'<svg class=\'w-4 h-4\'>...</svg>'"
 >
     Excluir
@@ -82,6 +87,7 @@ Botão com variantes e tamanhos.
 **Tamanhos:** `sm`, `md`, `lg`
 
 ### 6. Badge (`<x-badge>`)
+
 Badge para status e tags.
 
 ```blade
@@ -92,6 +98,7 @@ Badge para status e tags.
 **Variantes:** `default`, `primary`, `success`, `danger`, `warning`, `info`
 
 ### 7. Alert (`<x-alert>`)
+
 Alertas com ícones e dismiss.
 
 ```blade
@@ -107,6 +114,7 @@ Alertas com ícones e dismiss.
 **Tipos:** `info`, `success`, `warning`, `danger`
 
 ### 8. Stat Card (`<x-stat-card>`)
+
 Card de estatística com tendência.
 
 ```blade
@@ -165,7 +173,7 @@ Card de estatística com tendência.
 
     {{-- Content Card --}}
     <x-card title="Lista de Equipamentos">
-        <x-table 
+        <x-table
             :headers="['Código', 'Tipo', 'Status', 'Ações']"
             :rows="$equipamentos"
         />
@@ -181,22 +189,22 @@ Card de estatística com tendência.
 <x-card title="Cadastro de Equipamento">
     <form action="{{ route('equipamentos.store') }}" method="POST">
         @csrf
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <x-input 
+            <x-input
                 label="Código Interno"
                 name="codigo_interno"
                 required
             />
-            
-            <x-select 
+
+            <x-select
                 label="Tipo"
                 name="tipo"
                 :options="['Elétrica' => 'Elétrica', 'Mecânica' => 'Mecânica']"
                 required
             />
         </div>
-        
+
         <div class="flex gap-2 mt-6">
             <x-button variant="primary" type="submit">
                 Salvar
@@ -243,23 +251,28 @@ Card de estatística com tendência.
 ## 🎨 Classes Utilitárias Comuns
 
 ### Espaçamento
+
 - `p-4` - padding
 - `m-4` - margin
 - `gap-4` - gap em flex/grid
 - `space-y-4` - espaço vertical entre elementos
 
 ### Cores
+
 - `bg-{color}-{intensity}` - background
 - `text-{color}-{intensity}` - texto
 - `border-{color}-{intensity}` - borda
 
 ### Shadows & Borders
+
 - `shadow-sm`, `shadow`, `shadow-lg`, `shadow-xl`
 - `rounded-lg`, `rounded-xl`, `rounded-full`
 - `border`, `border-2`
 
 ### Dark Mode
+
 Adicione `dark:` antes de qualquer classe:
+
 ```blade
 <div class="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
     Conteúdo com dark mode
