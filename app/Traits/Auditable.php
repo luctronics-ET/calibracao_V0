@@ -56,8 +56,6 @@ trait Auditable
             'tabela' => $this->getTable(),
             'referencia_id' => $this->id,
             'detalhe' => json_encode($changes),
-            'ip' => request()->ip(),
-            'user_agent' => request()->userAgent()
         ]);
     }
 
