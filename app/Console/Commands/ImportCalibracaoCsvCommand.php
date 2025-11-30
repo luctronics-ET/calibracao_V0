@@ -12,7 +12,7 @@ use Carbon\Carbon;
 class ImportCalibracaoCsvCommand extends Command
 {
     protected $signature = 'import:calibracao-csv {file=calibracao.csv}';
-    protected $description = 'Importa dados do CSV de calibração (67 colunas, 484 equipamentos)';
+    protected $description = 'Importa dados do CSV de calibração (67 colunas, 580+ linhas)';
 
     private $stats = [
         'equipamentos_criados' => 0,
@@ -56,23 +56,26 @@ class ImportCalibracaoCsvCommand extends Command
         $file = fopen($filePath, 'r');
         $lineNumber = 0;
         $laboratorios = [];
+        $equipamentos = [];
 
         while (($row = fgetcsv($file)) !== false) {
             $lineNumber++;
 
-            // Pular linhas de cabeçalho (primeiras 3 linhas)
-            if ($lineNumber <= 3) {
+            // Linha 1: Cabeçalho principal (seções)
+            // Linha 2: Nomes das colunas
+            // Linha 3+: Dados
+            if ($lineNumber <= 2) {
                 continue;
             }
 
             // Validar se tem dados suficientes
             if (count($row) < 67) {
-                $this->stats['erros'][] = "Linha {$lineNumber}: menos de 67 colunas";
+                $this->stats['erros'][] = "Linha {$lineNumber}: menos de 67 colunas (" . count($row) . " colunas)";
                 continue;
             }
 
             try {
-                $this->processRow($row, $lineNumber, $laboratorios);
+                $this->processRow($row, $lineNumber, $laboratorios, $equipamentos);
             } catch (\Exception $e) {
                 $this->stats['erros'][] = "Linha {$lineNumber}: " . $e->getMessage();
             }
@@ -81,28 +84,61 @@ class ImportCalibracaoCsvCommand extends Command
         fclose($file);
     }
 
-    private function processRow($row, $lineNumber, &$laboratorios)
+    private function processRow($row, $lineNumber, &$laboratorios, &$equipamentos)
     {
-        // Mapear colunas conforme análise do CSV
+        // MAPEAMENTO CORRETO DAS COLUNAS DO CSV (conforme linha 2)
         $data = [
+            // Especificações Técnicas (0-14)
             'classe' => $this->cleanValue($row[0]),
             'tipo' => $this->cleanValue($row[1]),
             'fabricante' => $this->cleanValue($row[2]),
             'modelo' => $this->cleanValue($row[3]),
             'serie' => $this->cleanValue($row[4]),
-            'especificacoes' => $this->cleanValue($row[14]),
+            'codigo_interno' => $this->cleanValue($row[5]),
+            'altura' => $this->cleanValue($row[6]),
+            'largura' => $this->cleanValue($row[7]),
+            'comprimento' => $this->cleanValue($row[8]),
+            'tensao' => $this->cleanValue($row[9]),
+            'potencia' => $this->cleanValue($row[10]),
+            'faixa_medicao' => $this->cleanValue($row[14]),
+
+            // Metrologia (15-26)
+            'unidade_medicao' => $this->cleanValue($row[15]),
+            'tolerancia' => $this->cleanValue($row[16]),
+            'status_prontidao' => $this->cleanValue($row[25]),
+            'prioridade' => $this->cleanValue($row[26]),
+
+            // Gestão (27-35)
             'ciclo_meses' => $this->cleanValue($row[27]) ?: 12,
-            'codigo_interno' => $this->cleanValue($row[28]),
+            'divisao_setor' => $this->cleanValue($row[28]),
+            'incumbencia' => $this->cleanValue($row[29]),
+            'cadbem' => $this->cleanValue($row[30]),
             'patrimonio' => $this->cleanValue($row[32]),
-            'data_ultima_calibracao' => $this->parseDate($row[50]),
-            'data_validade_certificado' => $this->parseDate($row[51]),
-            'data_proxima_calibracao' => $this->parseDate($row[53]),
-            'custo_calibracao' => $this->parseDecimal($row[56]),
-            'status' => $this->cleanValue($row[58]),
+
+            // Processo (36-49)
+            'contrato_ata' => $this->cleanValue($row[36]),
+            'executor_laboratorio' => $this->cleanValue($row[48]),
+
+            // Datas e Calibração (50-61)
+            'data_entrada_oficina' => $this->parseDateBR($row[50]),
+            'data_saida_calibracao' => $this->parseDateBR($row[51]),
+            'lote_remessa' => $this->cleanValue($row[52]),
+            'data_retorno_calibracao' => $this->parseDateBR($row[53]),
+            'data_entrega_oficina' => $this->parseDateBR($row[54]),
+            'data_ultima_calibracao' => $this->parseExcelDate($row[56]),
+            'data_proxima_calibracao' => $this->parseExcelDate($row[57]),
+            'validade_status' => $this->cleanValue($row[58]),
             'certificado_numero' => $this->cleanValue($row[59]),
-            'laboratorio_nome' => $this->cleanValue($row[60]),
-            'orcamento_valor' => $this->parseDecimal($row[63]),
-            'setor' => $this->cleanValue($row[66]),
+            'localizacao_atual' => $this->cleanValue($row[60]),
+            'comentarios' => $this->cleanValue($row[61]),
+
+            // Financeiro (63-65)
+            'custo_estimado' => $this->parseDecimal($row[63]),
+            'orcamento' => $this->parseDecimal($row[64]),
+            'pagamento' => $this->parseDecimal($row[65]),
+
+            // Local (66)
+            'local_calibracao' => $this->cleanValue($row[66]),
         ];
 
         // Validação básica
@@ -110,12 +146,15 @@ class ImportCalibracaoCsvCommand extends Command
             throw new \Exception("Tipo de equipamento não informado");
         }
 
-        // Criar ou atualizar laboratório
+        // Determinar nome do laboratório
+        $laboratorio_nome = $data['local_calibracao'] ?: $data['localizacao_atual'] ?: $data['executor_laboratorio'];
+
+        // Criar ou recuperar laboratório
         $laboratorio = null;
-        if (!empty($data['laboratorio_nome'])) {
-            if (!isset($laboratorios[$data['laboratorio_nome']])) {
+        if (!empty($laboratorio_nome)) {
+            if (!isset($laboratorios[$laboratorio_nome])) {
                 $laboratorio = Laboratorio::firstOrCreate(
-                    ['nome' => $data['laboratorio_nome']],
+                    ['nome' => $laboratorio_nome],
                     [
                         'endereco' => '',
                         'telefone' => '',
@@ -123,53 +162,73 @@ class ImportCalibracaoCsvCommand extends Command
                         'acreditacao' => true,
                     ]
                 );
-                $laboratorios[$data['laboratorio_nome']] = $laboratorio;
+                $laboratorios[$laboratorio_nome] = $laboratorio;
                 $this->stats['laboratorios_criados']++;
             } else {
-                $laboratorio = $laboratorios[$data['laboratorio_nome']];
+                $laboratorio = $laboratorios[$laboratorio_nome];
             }
         }
 
-        // Criar ou atualizar equipamento
-        $equipamento = null;
-        if (!empty($data['codigo_interno'])) {
-            $equipamento = Equipamento::where('codigo_interno', $data['codigo_interno'])->first();
-        }
+        // Criar chave única do equipamento
+        $equipamento_key = implode('|', [
+            $data['classe'],
+            $data['tipo'],
+            $data['fabricante'],
+            $data['modelo'],
+            $data['serie'] ?: '',
+            $data['codigo_interno'] ?: '',
+            $data['patrimonio'] ?: '',
+        ]);
 
-        if ($equipamento) {
-            $equipamento->update([
-                'classe' => $data['classe'],
-                'tipo' => $data['tipo'],
-                'fabricante' => $data['fabricante'],
-                'modelo' => $data['modelo'],
-                'serie' => $data['serie'],
-                'especificacoes' => $data['especificacoes'],
-                'ciclo_meses' => $data['ciclo_meses'],
-                'patrimonio' => $data['patrimonio'],
-                'status' => $data['status'],
-                'setor' => $data['setor'],
-                'data_proxima_calibracao' => $data['data_proxima_calibracao'],
-                'custo_estimado' => $data['orcamento_valor'],
-            ]);
+        // Verificar se equipamento já foi criado nesta importação
+        if (isset($equipamentos[$equipamento_key])) {
+            $equipamento = $equipamentos[$equipamento_key];
             $this->stats['equipamentos_atualizados']++;
         } else {
-            $equipamento = Equipamento::create([
-                'classe' => $data['classe'],
-                'tipo' => $data['tipo'],
-                'fabricante' => $data['fabricante'],
-                'modelo' => $data['modelo'],
-                'serie' => $data['serie'],
-                'especificacoes' => $data['especificacoes'],
-                'codigo_interno' => $data['codigo_interno'] ?: "AUTO-{$lineNumber}",
-                'ciclo_meses' => $data['ciclo_meses'],
-                'patrimonio' => $data['patrimonio'],
-                'status' => $data['status'],
-                'setor' => $data['setor'],
-                'data_proxima_calibracao' => $data['data_proxima_calibracao'],
-                'custo_estimado' => $data['orcamento_valor'],
-                'status_calibracao' => $this->determineCalibrationStatus($data['status']),
-            ]);
-            $this->stats['equipamentos_criados']++;
+            // Buscar por código interno ou criar novo
+            $equipamento = null;
+            if (!empty($data['codigo_interno'])) {
+                $equipamento = Equipamento::where('codigo_interno', $data['codigo_interno'])->first();
+            }
+
+            if (!$equipamento && !empty($data['patrimonio'])) {
+                $equipamento = Equipamento::where('patrimonio', $data['patrimonio'])->first();
+            }
+
+            if ($equipamento) {
+                // Atualizar equipamento existente
+                $equipamento->update([
+                    'classe' => $data['classe'],
+                    'tipo' => $data['tipo'],
+                    'fabricante' => $data['fabricante'],
+                    'modelo' => $data['modelo'],
+                    'serie' => $data['serie'],
+                    'especificacoes' => $data['faixa_medicao'],
+                    'ciclo_meses' => $data['ciclo_meses'],
+                    'setor' => $data['divisao_setor'],
+                    'custo_estimado' => $data['custo_estimado'],
+                ]);
+                $this->stats['equipamentos_atualizados']++;
+            } else {
+                // Criar novo equipamento
+                $equipamento = Equipamento::create([
+                    'classe' => $data['classe'],
+                    'tipo' => $data['tipo'],
+                    'fabricante' => $data['fabricante'],
+                    'modelo' => $data['modelo'],
+                    'serie' => $data['serie'],
+                    'codigo_interno' => $data['codigo_interno'] ?: "AUTO-{$lineNumber}",
+                    'patrimonio' => $data['patrimonio'],
+                    'especificacoes' => $data['faixa_medicao'],
+                    'ciclo_meses' => $data['ciclo_meses'],
+                    'setor' => $data['divisao_setor'],
+                    'custo_estimado' => $data['custo_estimado'],
+                    'status_calibracao' => $this->determineCalibrationStatus($data['validade_status']),
+                ]);
+                $this->stats['equipamentos_criados']++;
+            }
+
+            $equipamentos[$equipamento_key] = $equipamento;
         }
 
         // Criar registro de calibração se houver data
@@ -177,12 +236,13 @@ class ImportCalibracaoCsvCommand extends Command
             $calibracao = Calibracao::create([
                 'equipamento_id' => $equipamento->id,
                 'laboratorio_id' => $laboratorio->id,
+                'data_envio' => $data['data_saida_calibracao'],
                 'data_calibracao' => $data['data_ultima_calibracao'],
-                'data_validade' => $data['data_validade_certificado'] ?: $data['data_proxima_calibracao'],
-                'certificado' => $data['certificado_numero'],
+                'data_retorno' => $data['data_retorno_calibracao'],
                 'status' => 'concluida',
-                'custo' => $data['custo_calibracao'],
-                'observacoes' => "Importado do CSV linha {$lineNumber}",
+                'certificado_num' => $data['certificado_numero'],
+                'custo' => $data['custo_estimado'],
+                'observacoes' => $this->buildObservacoes($data, $lineNumber),
             ]);
             $this->stats['calibracoes_criadas']++;
         }
@@ -192,13 +252,36 @@ class ImportCalibracaoCsvCommand extends Command
         }
     }
 
+    private function buildObservacoes($data, $lineNumber)
+    {
+        $obs = ["Importado do CSV linha {$lineNumber}"];
+
+        if ($data['comentarios']) {
+            $obs[] = "Comentários: " . $data['comentarios'];
+        }
+
+        if ($data['validade_status']) {
+            $obs[] = "Status: " . $data['validade_status'];
+        }
+
+        if ($data['lote_remessa']) {
+            $obs[] = "Lote: " . $data['lote_remessa'];
+        }
+
+        return implode(' | ', $obs);
+    }
+
     private function cleanValue($value)
     {
+        if (!isset($value)) {
+            return null;
+        }
+
         $cleaned = trim($value);
         return ($cleaned === '' || $cleaned === '#VALOR!' || $cleaned === 'NULL') ? null : $cleaned;
     }
 
-    private function parseDate($value)
+    private function parseDateBR($value)
     {
         $cleaned = $this->cleanValue($value);
         if (!$cleaned) {
@@ -206,10 +289,10 @@ class ImportCalibracaoCsvCommand extends Command
         }
 
         try {
-            // Tentar formatos: DD/MM/YY, DD/MM/YYYY
-            if (preg_match('/^(\d{2})\/(\d{2})\/(\d{2,4})$/', $cleaned, $matches)) {
-                $day = $matches[1];
-                $month = $matches[2];
+            // Formato: DD/MM/YY ou DD/MM/YYYY
+            if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/', $cleaned, $matches)) {
+                $day = str_pad($matches[1], 2, '0', STR_PAD_LEFT);
+                $month = str_pad($matches[2], 2, '0', STR_PAD_LEFT);
                 $year = $matches[3];
 
                 // Se ano com 2 dígitos, assumir 20XX
@@ -219,6 +302,30 @@ class ImportCalibracaoCsvCommand extends Command
 
                 return Carbon::createFromFormat('d/m/Y', "{$day}/{$month}/{$year}")->format('Y-m-d');
             }
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        return null;
+    }
+
+    private function parseExcelDate($value)
+    {
+        $cleaned = $this->cleanValue($value);
+        if (!$cleaned) {
+            return null;
+        }
+
+        try {
+            // Se for número (serial do Excel)
+            if (is_numeric($cleaned)) {
+                // Excel conta dias desde 30/12/1899
+                $timestamp = ($cleaned - 25569) * 86400;
+                return Carbon::createFromTimestamp($timestamp)->format('Y-m-d');
+            }
+
+            // Se for data no formato DD/MM/YY
+            return $this->parseDateBR($cleaned);
         } catch (\Exception $e) {
             return null;
         }
@@ -283,7 +390,7 @@ class ImportCalibracaoCsvCommand extends Command
             $this->newLine();
             $this->warn('Erros encontrados:');
             foreach (array_slice($this->stats['erros'], 0, 10) as $erro) {
-                $this->error("  - {$erro}");
+                $this->line("  - {$erro}");
             }
 
             if (count($this->stats['erros']) > 10) {
