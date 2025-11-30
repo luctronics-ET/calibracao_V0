@@ -84,15 +84,36 @@ class CalibracoesExport
         // Data rows
         $row = 2;
         foreach ($calibracoes as $calibracao) {
-            $sheet->setCellValue('A' . $row, $calibracao->numero_certificado);
-            $sheet->setCellValue('B' . $row, $calibracao->data_calibracao->format('d/m/Y'));
-            $sheet->setCellValue('C' . $row, $calibracao->data_validade?->format('d/m/Y'));
-            $sheet->setCellValue('D' . $row, $calibracao->equipamento->descricao);
-            $sheet->setCellValue('E' . $row, $calibracao->equipamento->numero_patrimonio);
-            $sheet->setCellValue('F' . $row, $calibracao->laboratorio->nome);
+            $sheet->setCellValue('A' . $row, $calibracao->numero_certificado ?? '');
+            
+            // Format data_calibracao - handle both string and Carbon/DateTime
+            $dataCalibracaoFormatted = '';
+            if ($calibracao->data_calibracao) {
+                if (is_string($calibracao->data_calibracao)) {
+                    $dataCalibracaoFormatted = date('d/m/Y', strtotime($calibracao->data_calibracao));
+                } else {
+                    $dataCalibracaoFormatted = $calibracao->data_calibracao->format('d/m/Y');
+                }
+            }
+            $sheet->setCellValue('B' . $row, $dataCalibracaoFormatted);
+            
+            // Format data_validade - handle both string and Carbon/DateTime
+            $dataValidadeFormatted = '';
+            if ($calibracao->data_validade) {
+                if (is_string($calibracao->data_validade)) {
+                    $dataValidadeFormatted = date('d/m/Y', strtotime($calibracao->data_validade));
+                } else {
+                    $dataValidadeFormatted = $calibracao->data_validade->format('d/m/Y');
+                }
+            }
+            $sheet->setCellValue('C' . $row, $dataValidadeFormatted);
+            
+            $sheet->setCellValue('D' . $row, $calibracao->equipamento->descricao ?? '');
+            $sheet->setCellValue('E' . $row, $calibracao->equipamento->numero_patrimonio ?? '');
+            $sheet->setCellValue('F' . $row, $calibracao->laboratorio->nome ?? '');
             $sheet->setCellValue('G' . $row, $this->translateResultado($calibracao->resultado));
-            $sheet->setCellValue('H' . $row, 'R$ ' . number_format($calibracao->custo, 2, ',', '.'));
-            $sheet->setCellValue('I' . $row, $calibracao->observacoes);
+            $sheet->setCellValue('H' . $row, $calibracao->custo ? 'R$ ' . number_format($calibracao->custo, 2, ',', '.') : '');
+            $sheet->setCellValue('I' . $row, $calibracao->observacoes ?? '');
 
             // Style data row
             $sheet->getStyle('A' . $row . ':I' . $row)->applyFromArray([
