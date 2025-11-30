@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Sistema de Calibração')</title>
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <title><?php echo $__env->yieldContent('title', 'Sistema de Calibração'); ?></title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
+    
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -23,13 +23,13 @@
         }
     </script>
 
-    @stack('styles')
+    <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
 
 <body x-data="{ 
     sidebarToggle: false, 
     darkMode: false,
-    page: '{{ $page ?? 'dashboard' }}'
+    page: '<?php echo e($page ?? 'dashboard'); ?>'
 }" x-init="darkMode = JSON.parse(localStorage.getItem('darkMode') || 'false'); 
         $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))"
     :class="{'dark bg-gray-900': darkMode === true}" class="antialiased">
@@ -38,7 +38,7 @@
     <div class="flex h-screen overflow-hidden">
 
         <!-- Sidebar -->
-        @include('partials.sidebar')
+        <?php echo $__env->make('partials.sidebar', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
         <!-- Content Area -->
         <div class="relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
@@ -51,12 +51,12 @@
                 class="fixed inset-0 z-9998 bg-gray-900/50 lg:hidden" style="display: none;"></div>
 
             <!-- Header -->
-            @include('partials.header')
+            <?php echo $__env->make('partials.header', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
             <!-- Main Content -->
             <main>
                 <div class="p-4 mx-auto max-w-screen-2xl md:p-6 2xl:p-10">
-                    @yield('content')
+                    <?php echo $__env->yieldContent('content'); ?>
                 </div>
             </main>
 
@@ -64,7 +64,7 @@
 
     </div>
 
-    @stack('scripts')
+    <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 
-</html>
+</html><?php /**PATH /var/www/resources/views/layouts/tailadmin.blade.php ENDPATH**/ ?>
