@@ -85,7 +85,7 @@ class CalibracoesExport
         $row = 2;
         foreach ($calibracoes as $calibracao) {
             $sheet->setCellValue('A' . $row, $calibracao->numero_certificado ?? '');
-            
+
             // Format data_calibracao - handle both string and Carbon/DateTime
             $dataCalibracaoFormatted = '';
             if ($calibracao->data_calibracao) {
@@ -96,7 +96,7 @@ class CalibracoesExport
                 }
             }
             $sheet->setCellValue('B' . $row, $dataCalibracaoFormatted);
-            
+
             // Format data_validade - handle both string and Carbon/DateTime
             $dataValidadeFormatted = '';
             if ($calibracao->data_validade) {
@@ -107,7 +107,7 @@ class CalibracoesExport
                 }
             }
             $sheet->setCellValue('C' . $row, $dataValidadeFormatted);
-            
+
             $sheet->setCellValue('D' . $row, $calibracao->equipamento->descricao ?? '');
             $sheet->setCellValue('E' . $row, $calibracao->equipamento->numero_patrimonio ?? '');
             $sheet->setCellValue('F' . $row, $calibracao->laboratorio->nome ?? '');
