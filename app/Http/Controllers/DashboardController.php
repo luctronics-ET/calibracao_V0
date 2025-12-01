@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Equipamento;
 use App\Models\Calibracao;
-use App\Models\Certificate;
-use App\Models\LoteEnvio;
+use App\Models\Lote;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -14,27 +13,27 @@ class DashboardController extends Controller
     {
         // KPIs principais
         $totalEquipamentos = Equipamento::count();
-        $equipamentosAtivos = Equipamento::where('status', 'ativo')->count();
+        $equipamentosBloqueados = Equipamento::where('bloqueado_para_uso', 1)->count();
         $totalCalibracoes = Calibracao::count();
         $calibracoesAno = Calibracao::whereYear('data_calibracao', date('Y'))->count();
 
         // Vencimentos próximos (30 dias)
-        $vencimentosProximos = Calibracao::whereBetween('data_proxima_calibracao', [
+        $vencimentosProximos = Equipamento::whereBetween('proxima_calibracao_prevista', [
             now(),
             now()->addDays(30)
         ])->count();
 
         // Vencidos
-        $vencidos = Calibracao::where('data_proxima_calibracao', '<', now())
-            ->where('status', 'em_uso')
+        $vencidos = Equipamento::where('proxima_calibracao_prevista', '<', now())
+            ->where('bloqueado_para_uso', 0)
             ->count();
 
-        // Distribuição por classificação IGP
-        $distribuicaoIGP = Equipamento::select('classificacao', DB::raw('count(*) as total'))
-            ->whereNotNull('classificacao')
-            ->groupBy('classificacao')
+        // Distribuição por criticidade
+        $distribuicaoCriticidade = Equipamento::select('criticidade_equipamento', DB::raw('count(*) as total'))
+            ->whereNotNull('criticidade_equipamento')
+            ->groupBy('criticidade_equipamento')
             ->get()
-            ->pluck('total', 'classificacao')
+            ->pluck('total', 'criticidade_equipamento')
             ->toArray();
 
         // Calibrações por mês (últimos 12 meses)
@@ -53,31 +52,30 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Certificados vencendo
-        $certificadosVencendo = Certificate::whereBetween('data_validade', [
-            now(),
-            now()->addDays(30)
-        ])->count();
-
         // Status dos lotes
-        $lotesPorStatus = LoteEnvio::select('status', DB::raw('count(*) as total'))
+        $lotesPorStatus = Lote::select('status', DB::raw('count(*) as total'))
             ->groupBy('status')
             ->get()
             ->pluck('total', 'status')
             ->toArray();
 
+        // Calibrações com RBC
+        $calibracoesRBC = Calibracao::whereNotNull('rbc_codigo_laboratorio')->count();
+        $calibracoesILAC = Calibracao::where('conformidade_ilac_p14', 1)->count();
+
         return view('dashboard', compact(
             'totalEquipamentos',
-            'equipamentosAtivos',
+            'equipamentosBloqueados',
             'totalCalibracoes',
             'calibracoesAno',
             'vencimentosProximos',
             'vencidos',
-            'distribuicaoIGP',
+            'distribuicaoCriticidade',
             'calibracoesPorMes',
             'topEquipamentos',
-            'certificadosVencendo',
-            'lotesPorStatus'
+            'lotesPorStatus',
+            'calibracoesRBC',
+            'calibracoesILAC'
         ));
     }
 }

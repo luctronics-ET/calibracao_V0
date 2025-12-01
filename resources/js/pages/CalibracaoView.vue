@@ -1,289 +1,198 @@
 <template>
-  <div class="page-container">
-    <div v-if="loading" class="loading-state">
-      <i class="fas fa-spinner fa-spin"></i>
-      <p>Carregando...</p>
-    </div>
-
-    <div v-else-if="error" class="error-state">
-      <i class="fas fa-exclamation-circle"></i>
-      <p>{{ error }}</p>
-      <button @click="router.push('/vue/calibracoes')" class="btn-primary">
-        Voltar para Lista
-      </button>
-    </div>
-
-    <div v-else>
-      <div class="page-header">
-        <div>
-          <h1>
-            <i class="fas fa-certificate"></i>
-            Detalhes da Calibração
-          </h1>
-          <p class="subtitle">Certificado: {{ calibracao.numero_certificado }}</p>
-        </div>
-        <div class="header-actions">
-          <button @click="router.push(`/vue/calibracoes/${calibracao.id}/editar`)" class="btn-primary">
-            <i class="fas fa-edit"></i>
-            Editar
-          </button>
-          <button @click="router.push('/vue/calibracoes')" class="btn-secondary">
-            <i class="fas fa-arrow-left"></i>
-            Voltar
-          </button>
-        </div>
+  <div class="calibracao-view-page">
+    <div class="page-header">
+      <router-link to="/vue/calibracoes" class="back-link">
+        <i class="fas fa-arrow-left"></i> Voltar
+      </router-link>
+      <div class="header-actions">
+        <router-link :to="`/vue/calibracoes/${id}/editar`" class="btn btn-warning">
+          <i class="fas fa-edit"></i> Editar
+        </router-link>
+        <button @click="handleDelete" class="btn btn-danger">
+          <i class="fas fa-trash"></i> Excluir
+        </button>
       </div>
+    </div>
 
-      <div class="content-grid">
-        <!-- Informações Principais -->
-        <div class="info-card">
-          <h2><i class="fas fa-info-circle"></i> Informações Principais</h2>
-          <div class="info-grid">
-            <div class="info-item">
-              <label>Equipamento</label>
-              <p>{{ calibracao.equipamento?.tipo || '-' }}</p>
-              <small v-if="calibracao.equipamento">
-                Patrimônio: {{ calibracao.equipamento.num_patrimonio }}
-              </small>
-            </div>
+    <div v-if="loading" class="loading-container">
+      <div class="spinner"></div>
+    </div>
 
-            <div class="info-item">
-              <label>Laboratório</label>
-              <p>{{ calibracao.laboratorio?.nome || '-' }}</p>
-              <small v-if="calibracao.laboratorio?.acreditado">
-                <i class="fas fa-check-circle text-success"></i> Acreditado
-              </small>
-            </div>
+    <div v-if="error" class="alert alert-danger">{{ error }}</div>
 
-            <div class="info-item">
-              <label>Número do Certificado</label>
-              <p class="highlight">{{ calibracao.numero_certificado }}</p>
-            </div>
-
-            <div class="info-item">
-              <label>Resultado</label>
-              <p>
-                <span 
-                  class="badge" 
-                  :style="{ backgroundColor: getResultadoCor(calibracao.resultado) }"
-                >
-                  {{ getResultadoLabel(calibracao.resultado) }}
-                </span>
-              </p>
-            </div>
-
-            <div class="info-item">
-              <label>Data da Calibração</label>
-              <p>{{ formatDate(calibracao.data_calibracao) }}</p>
-            </div>
-
-            <div class="info-item">
-              <label>Próxima Calibração</label>
-              <p>{{ calibracao.data_proxima ? formatDate(calibracao.data_proxima) : 'Não definida' }}</p>
-            </div>
-
-            <div class="info-item">
-              <label>Custo</label>
-              <p>{{ calibracao.custo ? formatCurrency(calibracao.custo) : 'Não informado' }}</p>
-            </div>
-
-            <div class="info-item full-width" v-if="calibracao.observacoes">
-              <label>Observações</label>
-              <p class="observations">{{ calibracao.observacoes }}</p>
-            </div>
+    <div v-if="!loading && calibracao" class="content-grid">
+      <div class="info-card">
+        <h2>
+          <i class="fas fa-clipboard-check"></i>
+          Calibração #{{ calibracao.id }}
+          <span :class="['badge', getStatusClass(calibracao.status)]">
+            {{ getStatusLabel(calibracao.status) }}
+          </span>
+        </h2>
+        <div class="info-group">
+          <div class="info-row">
+            <span class="label">Equipamento:</span>
+            <span class="value">{{ calibracao.equipamento?.tipo || 'N/A' }}</span>
           </div>
-        </div>
-
-        <!-- Upload de Certificado -->
-        <div class="info-card">
-          <h2><i class="fas fa-file-pdf"></i> Certificado</h2>
-          
-          <div v-if="calibracao.certificado_path" class="certificate-info">
-            <div class="file-display">
-              <i class="fas fa-file-pdf file-icon"></i>
-              <div>
-                <p class="file-name">Certificado anexado</p>
-                <small>{{ calibracao.certificado_path }}</small>
-              </div>
-            </div>
-            <a :href="`/storage/${calibracao.certificado_path}`" target="_blank" class="btn-secondary">
-              <i class="fas fa-download"></i>
-              Baixar
-            </a>
+          <div class="info-row">
+            <span class="label">Data da Calibração:</span>
+            <span class="value">{{ formatDate(calibracao.data_calibracao) }}</span>
           </div>
-
-          <div v-else class="no-certificate">
-            <i class="fas fa-file-pdf"></i>
-            <p>Nenhum certificado anexado</p>
+          <div class="info-row">
+            <span class="label">Laboratório:</span>
+            <span class="value">{{ calibracao.laboratorio?.nome || 'N/A' }}</span>
           </div>
-
-          <div class="upload-section">
-            <label for="certificate" class="upload-label">
-              {{ calibracao.certificado_path ? 'Substituir certificado' : 'Anexar certificado' }}
-            </label>
-            <input 
-              type="file" 
-              id="certificate" 
-              @change="handleFileUpload" 
-              accept=".pdf"
-              :disabled="uploading"
-            />
-            <p v-if="uploading" class="upload-status">
-              <i class="fas fa-spinner fa-spin"></i> Enviando...
-            </p>
+          <div v-if="calibracao.proxima_calibracao_sugerida" class="info-row">
+            <span class="label">Próxima Calibração Sugerida:</span>
+            <span class="value">{{ formatDate(calibracao.proxima_calibracao_sugerida) }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Informações do Sistema -->
-      <div class="info-card metadata">
-        <h3><i class="fas fa-clock"></i> Informações do Sistema</h3>
-        <div class="metadata-grid">
-          <div>
-            <label>Criado em</label>
-            <p>{{ formatDateTime(calibracao.created_at) }}</p>
+      <div class="info-card rbc-card">
+        <h3>
+          <i class="fas fa-certificate"></i>
+          Informações RBC
+          <span v-if="calibracao.conformidade_ilac_p14" class="badge-success">
+            <i class="fas fa-check-circle"></i> ILAC-P14 Conforme
+          </span>
+        </h3>
+        <div class="info-group">
+          <div class="info-row">
+            <span class="label">Código RBC do Laboratório:</span>
+            <span class="value">{{ calibracao.rbc_codigo_laboratorio || 'N/A' }}</span>
           </div>
-          <div>
-            <label>Última atualização</label>
-            <p>{{ formatDateTime(calibracao.updated_at) }}</p>
+          <div class="info-row">
+            <span class="label">Método de Calibração RBC:</span>
+            <span class="value">{{ calibracao.rbc_metodo_calibracao || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Incerteza Prevista RBC:</span>
+            <span class="value">{{ calibracao.rbc_incerteza_prevista || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Capacidade de Medição (CMC):</span>
+            <span class="value">{{ calibracao.rbc_capacidade_medicao || 'N/A' }}</span>
           </div>
         </div>
+      </div>
+
+      <div class="info-card">
+        <h3><i class="fas fa-link"></i> Relacionamentos</h3>
+        <div class="info-group">
+          <div class="info-row">
+            <span class="label">Lote:</span>
+            <span class="value">
+              {{ calibracao.lote ? `Lote #${calibracao.lote.id}` : 'N/A' }}
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="label">Contrato de Serviço:</span>
+            <span class="value">{{ calibracao.contrato_servico?.numero_contrato || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Localização Atual:</span>
+            <span class="value">{{ calibracao.localizacao_atual?.nome || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="calibracao.observacoes" class="info-card">
+        <h3><i class="fas fa-comment"></i> Observações</h3>
+        <p class="observacoes">{{ calibracao.observacoes }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useCalibracoesStore } from '../stores/calibracoes'
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useCalibracoesStore } from '../stores/calibracoes';
 
-const router = useRouter()
-const route = useRoute()
-const calibracoesStore = useCalibracoesStore()
+const router = useRouter();
+const route = useRoute();
+const calibracoesStore = useCalibracoesStore();
 
-const loading = ref(true)
-const uploading = ref(false)
-
-const calibracao = computed(() => calibracoesStore.calibracao)
-const error = computed(() => calibracoesStore.error)
+const id = route.params.id;
+const loading = ref(false);
+const error = ref(null);
+const calibracao = ref(null);
 
 onMounted(async () => {
   try {
-    await calibracoesStore.fetchCalibracao(route.params.id)
+    loading.value = true;
+    calibracao.value = await calibracoesStore.fetchCalibracao(id);
   } catch (err) {
-    console.error('Erro ao carregar calibração:', err)
+    error.value = err.message || 'Erro ao carregar calibração';
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-})
+});
 
-const handleFileUpload = async (event) => {
-  const file = event.target.files[0]
-  if (!file) return
+const getStatusClass = (status) => {
+  const classes = {
+    'pendente': 'badge-secondary',
+    'em_andamento': 'badge-info',
+    'concluida': 'badge-success',
+    'aprovada': 'badge-success',
+    'reprovada': 'badge-danger'
+  };
+  return classes[status] || 'badge-secondary';
+};
 
-  if (file.type !== 'application/pdf') {
-    alert('Por favor, selecione um arquivo PDF')
-    return
-  }
-
-  if (file.size > 10 * 1024 * 1024) {
-    alert('O arquivo deve ter no máximo 10MB')
-    return
-  }
-
-  uploading.value = true
-
-  try {
-    await calibracoesStore.uploadCertificado(route.params.id, file)
-    alert('Certificado enviado com sucesso!')
-    await calibracoesStore.fetchCalibracao(route.params.id)
-  } catch (err) {
-    console.error('Erro ao enviar certificado:', err)
-    alert(err.message || 'Erro ao enviar certificado')
-  } finally {
-    uploading.value = false
-    event.target.value = ''
-  }
-}
-
-const getResultadoCor = (resultado) => {
-  return calibracoesStore.getResultadoCor(resultado)
-}
-
-const getResultadoLabel = (resultado) => {
+const getStatusLabel = (status) => {
   const labels = {
-    conforme: 'Conforme',
-    nao_conforme: 'Não Conforme',
-    condicional: 'Condicional'
+    'pendente': 'Pendente',
+    'em_andamento': 'Em Andamento',
+    'concluida': 'Concluída',
+    'aprovada': 'Aprovada',
+    'reprovada': 'Reprovada'
+  };
+  return labels[status] || status;
+};
+
+const formatDate = (date) => {
+  if (!date) return 'N/A';
+  return new Date(date).toLocaleDateString('pt-BR');
+};
+
+const handleDelete = async () => {
+  if (!confirm('Tem certeza que deseja excluir esta calibração?')) return;
+  try {
+    await calibracoesStore.deleteCalibracao(id);
+    router.push('/vue/calibracoes');
+  } catch (err) {
+    alert(err.message || 'Erro ao excluir calibração');
   }
-  return labels[resultado] || resultado
-}
-
-const formatDate = (dateString) => {
-  if (!dateString) return '-'
-  return new Date(dateString).toLocaleDateString('pt-BR')
-}
-
-const formatDateTime = (dateString) => {
-  if (!dateString) return '-'
-  return new Date(dateString).toLocaleString('pt-BR')
-}
-
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(value)
-}
+};
 </script>
 
 <style scoped>
-.page-container {
+.calibracao-view-page {
   padding: 24px;
-}
-
-.loading-state,
-.error-state {
-  text-align: center;
-  padding: 48px;
-  color: #6b7280;
-}
-
-.loading-state i,
-.error-state i {
-  font-size: 48px;
-  margin-bottom: 16px;
-}
-
-.error-state i {
-  color: #ef4444;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 24px;
 }
 
-.page-header h1 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1f2937;
-  display: flex;
+.back-link {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 4px;
-}
-
-.page-header h1 i {
-  color: #3b82f6;
-}
-
-.subtitle {
+  gap: 8px;
   color: #6b7280;
+  text-decoration: none;
   font-size: 14px;
+}
+
+.back-link:hover {
+  color: #3b82f6;
 }
 
 .header-actions {
@@ -293,237 +202,165 @@ const formatCurrency = (value) => {
 
 .content-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
+  gap: 20px;
 }
 
 .info-card {
   background: white;
+  padding: 24px;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 24px;
+}
+
+.rbc-card {
+  background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+  border: 2px solid #3b82f6;
 }
 
 .info-card h2 {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
   color: #1f2937;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.info-card h2 i {
-  color: #3b82f6;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.info-item.full-width {
-  grid-column: 1 / -1;
-}
-
-.info-item label {
-  font-size: 12px;
-  font-weight: 500;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
-}
-
-.info-item p {
-  font-size: 16px;
-  color: #1f2937;
-  font-weight: 500;
-}
-
-.info-item small {
-  font-size: 13px;
-  color: #6b7280;
-  margin-top: 2px;
-}
-
-.highlight {
-  color: #3b82f6 !important;
-}
-
-.observations {
-  white-space: pre-wrap;
-  line-height: 1.6;
-}
-
-.badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 12px;
-  color: white;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.text-success {
-  color: #10b981;
-}
-
-.certificate-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  background: #f9fafb;
-  border-radius: 6px;
-  margin-bottom: 20px;
-}
-
-.file-display {
+  margin: 0 0 20px 0;
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.file-icon {
-  font-size: 32px;
-  color: #ef4444;
-}
-
-.file-name {
-  font-weight: 500;
-  color: #1f2937;
-  margin-bottom: 2px;
-}
-
-.no-certificate {
-  text-align: center;
-  padding: 32px;
-  color: #9ca3af;
-}
-
-.no-certificate i {
-  font-size: 48px;
-  margin-bottom: 12px;
-  opacity: 0.5;
-}
-
-.upload-section {
-  margin-top: 16px;
-}
-
-.upload-label {
-  display: block;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 8px;
-}
-
-.upload-section input[type="file"] {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  border: 1px dashed #d1d5db;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.upload-status {
-  margin-top: 8px;
-  color: #3b82f6;
-  font-size: 14px;
-}
-
-.metadata {
-  grid-column: 1 / -1;
-}
-
-.metadata h3 {
+.info-card h3 {
   font-size: 16px;
   font-weight: 600;
   color: #1f2937;
-  margin-bottom: 16px;
+  margin: 0 0 16px 0;
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e5e7eb;
 }
 
-.metadata-grid {
+.info-group {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 12px;
 }
 
-.metadata-grid label {
-  display: block;
-  font-size: 12px;
-  font-weight: 500;
-  color: #6b7280;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.metadata-grid p {
-  font-size: 14px;
-  color: #1f2937;
-}
-
-.btn-primary,
-.btn-secondary {
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  display: inline-flex;
+.info-row {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  text-decoration: none;
+  padding: 8px 0;
+  font-size: 14px;
 }
 
-.btn-primary {
-  background: #3b82f6;
-  color: white;
+.info-row .label {
+  color: #6b7280;
+  font-weight: 500;
 }
 
-.btn-primary:hover {
-  background: #2563eb;
+.info-row .value {
+  color: #1f2937;
+  text-align: right;
 }
 
-.btn-secondary {
-  background: #f3f4f6;
+.observacoes {
+  color: #374151;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.badge {
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-secondary {
+  background: #e5e7eb;
   color: #374151;
 }
 
-.btn-secondary:hover {
-  background: #e5e7eb;
+.badge-info {
+  background: #dbeafe;
+  color: #1e40af;
 }
 
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    gap: 16px;
-  }
+.badge-success {
+  background: #d1fae5;
+  color: #065f46;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 
-  .content-grid {
-    grid-template-columns: 1fr;
-  }
+.badge-danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
 
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
 
-  .metadata-grid {
-    grid-template-columns: 1fr;
-  }
+.btn-warning {
+  background: #f59e0b;
+  color: white;
+}
+
+.btn-warning:hover {
+  background: #d97706;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 8px;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto;
+  border: 4px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.alert {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.alert-danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
 }
 </style>

@@ -1,10 +1,10 @@
 <template>
-  <div class="laboratorios-list-page">
+  <div class="locais-list-page">
     <div class="page-header">
-      <h1>Laboratórios</h1>
-      <router-link to="/vue/laboratorios/novo" class="btn btn-primary">
+      <h1>Locais</h1>
+      <router-link to="/vue/locais/novo" class="btn btn-primary">
         <i class="fas fa-plus"></i>
-        Novo Laboratório
+        Novo Local
       </router-link>
     </div>
 
@@ -12,13 +12,18 @@
       <input 
         v-model="searchQuery" 
         type="text" 
-        placeholder="Buscar por nome, CNPJ ou código RBC..." 
+        placeholder="Buscar por nome, código ou setor..." 
         class="search-input"
       />
-      <label class="filter-checkbox">
-        <input v-model="rbcFilter" type="checkbox" />
-        Apenas Acreditados RBC
-      </label>
+      <select v-model="tipoFilter" class="filter-select">
+        <option value="">Todos os Tipos</option>
+        <option value="laboratorio">Laboratório</option>
+        <option value="almoxarifado">Almoxarifado</option>
+        <option value="sala">Sala</option>
+        <option value="setor">Setor</option>
+        <option value="externo">Externo</option>
+        <option value="outro">Outro</option>
+      </select>
     </div>
 
     <div v-if="loading" class="loading-container">
@@ -27,61 +32,63 @@
 
     <div v-if="error" class="alert alert-danger">{{ error }}</div>
 
-    <div v-if="!loading && filteredLaboratorios.length === 0" class="empty-state">
-      <i class="fas fa-flask fa-3x"></i>
-      <p>Nenhum laboratório encontrado</p>
-      <router-link to="/vue/laboratorios/novo" class="btn btn-primary">
-        Criar primeiro laboratório
+    <div v-if="!loading && filteredLocais.length === 0" class="empty-state">
+      <i class="fas fa-map-marker-alt fa-3x"></i>
+      <p>Nenhum local encontrado</p>
+      <router-link to="/vue/locais/novo" class="btn btn-primary">
+        Criar primeiro local
       </router-link>
     </div>
 
-    <div v-if="!loading && filteredLaboratorios.length > 0" class="laboratorios-grid">
-      <div v-for="lab in filteredLaboratorios" :key="lab.id" class="laboratorio-card">
+    <div v-if="!loading && filteredLocais.length > 0" class="locais-grid">
+      <div v-for="local in filteredLocais" :key="local.id" class="local-card">
         <div class="card-header">
           <div class="card-title">
-            <i class="fas fa-flask"></i>
-            {{ lab.nome }}
+            <i class="fas fa-map-marker-alt"></i>
+            {{ local.nome }}
           </div>
-          <span v-if="lab.acreditado_rbc" class="badge-rbc">
-            <i class="fas fa-certificate"></i> RBC
+          <span v-if="local.tipo_local" :class="['badge-tipo', getTipoClass(local.tipo_local)]">
+            {{ getTipoLabel(local.tipo_local) }}
           </span>
         </div>
 
         <div class="card-body">
-          <div v-if="lab.rbc_codigo" class="info-row highlight">
-            <span class="label">Código RBC:</span>
-            <span class="value">{{ lab.rbc_codigo }}</span>
+          <div v-if="local.codigo" class="info-row">
+            <span class="label">Código:</span>
+            <span class="value">{{ local.codigo }}</span>
           </div>
-          <div class="info-row">
-            <span class="label">CNPJ:</span>
-            <span class="value">{{ lab.cnpj || 'N/A' }}</span>
+          <div v-if="local.predio" class="info-row">
+            <span class="label">Prédio:</span>
+            <span class="value">{{ local.predio }}</span>
           </div>
-          <div class="info-row">
-            <span class="label">E-mail:</span>
-            <span class="value">{{ lab.email || 'N/A' }}</span>
+          <div v-if="local.andar || local.sala" class="info-row">
+            <span class="label">Localização:</span>
+            <span class="value">
+              {{ [local.andar, local.sala].filter(Boolean).join(' - ') }}
+            </span>
           </div>
-          <div class="info-row">
-            <span class="label">Telefone:</span>
-            <span class="value">{{ lab.telefone || 'N/A' }}</span>
+          <div v-if="local.setor" class="info-row">
+            <span class="label">Setor:</span>
+            <span class="value">{{ local.setor }}</span>
           </div>
-          <div v-if="lab.endereco_cidade" class="info-row">
-            <span class="label">Cidade:</span>
-            <span class="value">{{ lab.endereco_cidade }}/{{ lab.endereco_uf }}</span>
+          <div v-if="local.capacidade" class="info-row">
+            <span class="label">Capacidade:</span>
+            <span class="value">{{ local.capacidade }} equipamentos</span>
           </div>
-          <div v-if="lab.escopo_acreditacao" class="info-row">
-            <span class="label">Escopo:</span>
-            <span class="value">{{ lab.escopo_acreditacao }}</span>
+          <div v-if="local.responsavel" class="info-row">
+            <span class="label">Responsável:</span>
+            <span class="value">{{ local.responsavel }}</span>
           </div>
         </div>
 
         <div class="card-actions">
-          <router-link :to="`/vue/laboratorios/${lab.id}`" class="btn btn-sm btn-info">
+          <router-link :to="`/vue/locais/${local.id}`" class="btn btn-sm btn-info">
             <i class="fas fa-eye"></i> Ver
           </router-link>
-          <router-link :to="`/vue/laboratorios/${lab.id}/editar`" class="btn btn-sm btn-warning">
+          <router-link :to="`/vue/locais/${local.id}/editar`" class="btn btn-sm btn-warning">
             <i class="fas fa-edit"></i> Editar
           </router-link>
-          <button @click="handleDelete(lab.id)" class="btn btn-sm btn-danger">
+          <button @click="handleDelete(local.id)" class="btn btn-sm btn-danger">
             <i class="fas fa-trash"></i> Excluir
           </button>
         </div>
@@ -92,30 +99,30 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useLaboratoriosStore } from '../stores/laboratorios';
+import { useLocaisStore } from '../stores/locais';
 
-const laboratoriosStore = useLaboratoriosStore();
+const locaisStore = useLocaisStore();
 
 const loading = ref(false);
 const error = ref(null);
 const searchQuery = ref('');
-const rbcFilter = ref(false);
+const tipoFilter = ref('');
 
-const laboratorios = computed(() => laboratoriosStore.laboratorios);
+const locais = computed(() => locaisStore.locais);
 
-const filteredLaboratorios = computed(() => {
-  let result = laboratorios.value;
+const filteredLocais = computed(() => {
+  let result = locais.value;
 
-  if (rbcFilter.value) {
-    result = result.filter(l => l.acreditado_rbc);
+  if (tipoFilter.value) {
+    result = result.filter(l => l.tipo_local === tipoFilter.value);
   }
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     result = result.filter(l => 
       l.nome?.toLowerCase().includes(query) ||
-      l.cnpj?.toLowerCase().includes(query) ||
-      l.rbc_codigo?.toLowerCase().includes(query)
+      l.codigo?.toLowerCase().includes(query) ||
+      l.setor?.toLowerCase().includes(query)
     );
   }
 
@@ -125,26 +132,50 @@ const filteredLaboratorios = computed(() => {
 onMounted(async () => {
   try {
     loading.value = true;
-    await laboratoriosStore.fetchLaboratorios();
+    await locaisStore.fetchLocais();
   } catch (err) {
-    error.value = err.message || 'Erro ao carregar laboratórios';
+    error.value = err.message || 'Erro ao carregar locais';
   } finally {
     loading.value = false;
   }
 });
 
+const getTipoClass = (tipo) => {
+  const classes = {
+    'laboratorio': 'tipo-lab',
+    'almoxarifado': 'tipo-alm',
+    'sala': 'tipo-sala',
+    'setor': 'tipo-setor',
+    'externo': 'tipo-ext',
+    'outro': 'tipo-outro'
+  };
+  return classes[tipo] || 'tipo-outro';
+};
+
+const getTipoLabel = (tipo) => {
+  const labels = {
+    'laboratorio': 'Laboratório',
+    'almoxarifado': 'Almoxarifado',
+    'sala': 'Sala',
+    'setor': 'Setor',
+    'externo': 'Externo',
+    'outro': 'Outro'
+  };
+  return labels[tipo] || tipo;
+};
+
 const handleDelete = async (id) => {
-  if (!confirm('Tem certeza que deseja excluir este laboratório?')) return;
+  if (!confirm('Tem certeza que deseja excluir este local?')) return;
   try {
-    await laboratoriosStore.deleteLaboratorio(id);
+    await locaisStore.deleteLocal(id);
   } catch (err) {
-    alert(err.message || 'Erro ao excluir laboratório');
+    alert(err.message || 'Erro ao excluir local');
   }
 };
 </script>
 
 <style scoped>
-.laboratorios-list-page {
+.locais-list-page {
   padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
@@ -168,7 +199,6 @@ const handleDelete = async (id) => {
   display: flex;
   gap: 12px;
   margin-bottom: 24px;
-  align-items: center;
 }
 
 .search-input {
@@ -184,30 +214,21 @@ const handleDelete = async (id) => {
   border-color: #3b82f6;
 }
 
-.filter-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.filter-select {
   padding: 10px 16px;
-  background: white;
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  cursor: pointer;
   font-size: 14px;
-  white-space: nowrap;
+  min-width: 200px;
 }
 
-.filter-checkbox input {
-  cursor: pointer;
-}
-
-.laboratorios-grid {
+.locais-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: 20px;
 }
 
-.laboratorio-card {
+.local-card {
   background: white;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -215,7 +236,7 @@ const handleDelete = async (id) => {
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.laboratorio-card:hover {
+.local-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
@@ -239,19 +260,45 @@ const handleDelete = async (id) => {
 }
 
 .card-title i {
-  color: #10b981;
+  color: #f59e0b;
 }
 
-.badge-rbc {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
+.badge-tipo {
   padding: 4px 12px;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  text-transform: uppercase;
+}
+
+.tipo-lab {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.tipo-alm {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.tipo-sala {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.tipo-setor {
+  background: #e9d5ff;
+  color: #6b21a8;
+}
+
+.tipo-ext {
+  background: #fed7aa;
+  color: #9a3412;
+}
+
+.tipo-outro {
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .card-body {
@@ -268,13 +315,6 @@ const handleDelete = async (id) => {
   font-size: 14px;
 }
 
-.info-row.highlight {
-  background: #f0f9ff;
-  padding: 8px 12px;
-  border-radius: 6px;
-  margin: -4px -4px 4px -4px;
-}
-
 .info-row .label {
   color: #6b7280;
   font-weight: 500;
@@ -283,11 +323,6 @@ const handleDelete = async (id) => {
 .info-row .value {
   color: #1f2937;
   text-align: right;
-}
-
-.info-row.highlight .value {
-  color: #1e40af;
-  font-weight: 600;
 }
 
 .card-actions {

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Calibração - IGP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        #vue-root {
+            min-height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="vue-root"></div>
+
+    <!-- Vite Dev Server -->
+    <script type="module" src="http://localhost:5173/js/main.js"></script>
+</body>
+
+</html><?php /**PATH /home/luciano/Área de trabalho/dev/calibracao_V0/resources/views/vue-app.blade.php ENDPATH**/ ?>

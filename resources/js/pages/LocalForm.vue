@@ -1,10 +1,10 @@
 <template>
-  <div class="laboratorio-form-page">
+  <div class="local-form-page">
     <div class="form-header">
-      <router-link to="/vue/laboratorios" class="back-link">
+      <router-link to="/vue/locais" class="back-link">
         <i class="fas fa-arrow-left"></i> Voltar
       </router-link>
-      <h1>{{ isEdit ? 'Editar Laboratório' : 'Novo Laboratório' }}</h1>
+      <h1>{{ isEdit ? 'Editar Local' : 'Novo Local' }}</h1>
     </div>
 
     <div v-if="loading" class="loading-container">
@@ -18,119 +18,105 @@
 
     <form v-if="!loading" @submit.prevent="handleSubmit" class="form-container">
       <div class="form-section">
-        <h2>Informações Básicas</h2>
+        <h2>Informações do Local</h2>
         <div class="form-grid">
           <div class="form-group">
             <label>Nome *</label>
-            <input v-model="form.nome" type="text" required class="form-control" />
+            <input v-model="form.nome" type="text" required class="form-control" 
+                   placeholder="Ex: Sala 101, Almoxarifado, etc" />
           </div>
 
           <div class="form-group">
-            <label>CNPJ</label>
-            <input v-model="form.cnpj" type="text" class="form-control" />
+            <label>Tipo de Local</label>
+            <select v-model="form.tipo_local" class="form-control">
+              <option value="">Selecione</option>
+              <option value="laboratorio">Laboratório</option>
+              <option value="almoxarifado">Almoxarifado</option>
+              <option value="sala">Sala</option>
+              <option value="setor">Setor</option>
+              <option value="externo">Externo</option>
+              <option value="outro">Outro</option>
+            </select>
           </div>
 
           <div class="form-group">
-            <label>E-mail</label>
-            <input v-model="form.email" type="email" class="form-control" />
+            <label>Código/Identificador</label>
+            <input v-model="form.codigo" type="text" class="form-control" 
+                   placeholder="Ex: LAB-01, ALM-02" />
           </div>
 
           <div class="form-group">
-            <label>Telefone</label>
-            <input v-model="form.telefone" type="tel" class="form-control" />
-          </div>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <h2>Endereço</h2>
-        <div class="form-grid">
-          <div class="form-group full-width">
-            <label>Logradouro</label>
-            <input v-model="form.endereco_logradouro" type="text" class="form-control" />
-          </div>
-
-          <div class="form-group">
-            <label>Número</label>
-            <input v-model="form.endereco_numero" type="text" class="form-control" />
-          </div>
-
-          <div class="form-group">
-            <label>Complemento</label>
-            <input v-model="form.endereco_complemento" type="text" class="form-control" />
-          </div>
-
-          <div class="form-group">
-            <label>Bairro</label>
-            <input v-model="form.endereco_bairro" type="text" class="form-control" />
-          </div>
-
-          <div class="form-group">
-            <label>Cidade</label>
-            <input v-model="form.endereco_cidade" type="text" class="form-control" />
-          </div>
-
-          <div class="form-group">
-            <label>UF</label>
-            <input v-model="form.endereco_uf" type="text" maxlength="2" class="form-control" />
-          </div>
-
-          <div class="form-group">
-            <label>CEP</label>
-            <input v-model="form.endereco_cep" type="text" class="form-control" />
-          </div>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <h2>Acreditação RBC</h2>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Código RBC</label>
-            <input v-model="form.rbc_codigo" type="text" class="form-control" 
-                   placeholder="Ex: RBC-001" />
-          </div>
-
-          <div class="form-group">
-            <label>Escopo de Acreditação</label>
-            <input v-model="form.escopo_acreditacao" type="text" class="form-control" />
-          </div>
-
-          <div class="form-group">
-            <label>Validade Acreditação</label>
-            <input v-model="form.validade_acreditacao" type="date" class="form-control" />
-          </div>
-
-          <div class="form-group">
-            <label>Organismo Acreditador</label>
-            <input v-model="form.organismo_acreditador" type="text" class="form-control" 
-                   placeholder="Ex: Inmetro, CGCRE" />
+            <label>Capacidade</label>
+            <input v-model.number="form.capacidade" type="number" class="form-control" 
+                   placeholder="Número de equipamentos" />
           </div>
 
           <div class="form-group full-width">
-            <label class="checkbox-label">
-              <input v-model="form.acreditado_rbc" type="checkbox" />
-              Laboratório Acreditado RBC
-            </label>
+            <label>Descrição</label>
+            <textarea v-model="form.descricao" rows="3" class="form-control"></textarea>
           </div>
         </div>
       </div>
 
       <div class="form-section">
-        <h2>Informações Adicionais</h2>
+        <h2>Localização Física</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Prédio/Edifício</label>
+            <input v-model="form.predio" type="text" class="form-control" />
+          </div>
+
+          <div class="form-group">
+            <label>Andar</label>
+            <input v-model="form.andar" type="text" class="form-control" />
+          </div>
+
+          <div class="form-group">
+            <label>Sala/Número</label>
+            <input v-model="form.sala" type="text" class="form-control" />
+          </div>
+
+          <div class="form-group">
+            <label>Setor/Departamento</label>
+            <input v-model="form.setor" type="text" class="form-control" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>Responsável</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nome do Responsável</label>
+            <input v-model="form.responsavel" type="text" class="form-control" />
+          </div>
+
+          <div class="form-group">
+            <label>E-mail do Responsável</label>
+            <input v-model="form.responsavel_email" type="email" class="form-control" />
+          </div>
+
+          <div class="form-group">
+            <label>Telefone do Responsável</label>
+            <input v-model="form.responsavel_telefone" type="tel" class="form-control" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>Observações</h2>
         <div class="form-group full-width">
-          <label>Observações</label>
           <textarea v-model="form.observacoes" rows="4" class="form-control"></textarea>
         </div>
       </div>
 
       <div class="form-actions">
-        <router-link to="/vue/laboratorios" class="btn btn-secondary">
+        <router-link to="/vue/locais" class="btn btn-secondary">
           Cancelar
         </router-link>
         <button type="submit" class="btn btn-primary" :disabled="loading">
           <i class="fas fa-save"></i>
-          {{ isEdit ? 'Salvar' : 'Criar Laboratório' }}
+          {{ isEdit ? 'Salvar' : 'Criar Local' }}
         </button>
       </div>
     </form>
@@ -140,11 +126,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useLaboratoriosStore } from '../stores/laboratorios';
+import { useLocaisStore } from '../stores/locais';
 
 const router = useRouter();
 const route = useRoute();
-const laboratoriosStore = useLaboratoriosStore();
+const locaisStore = useLocaisStore();
 
 const isEdit = computed(() => !!route.params.id);
 const loading = ref(false);
@@ -152,21 +138,17 @@ const error = ref(null);
 
 const form = ref({
   nome: '',
-  cnpj: '',
-  email: '',
-  telefone: '',
-  endereco_logradouro: '',
-  endereco_numero: '',
-  endereco_complemento: '',
-  endereco_bairro: '',
-  endereco_cidade: '',
-  endereco_uf: '',
-  endereco_cep: '',
-  rbc_codigo: '',
-  acreditado_rbc: false,
-  escopo_acreditacao: '',
-  validade_acreditacao: '',
-  organismo_acreditador: '',
+  tipo_local: '',
+  codigo: '',
+  descricao: '',
+  predio: '',
+  andar: '',
+  sala: '',
+  setor: '',
+  capacidade: null,
+  responsavel: '',
+  responsavel_email: '',
+  responsavel_telefone: '',
   observacoes: ''
 });
 
@@ -174,14 +156,14 @@ onMounted(async () => {
   if (isEdit.value) {
     try {
       loading.value = true;
-      const laboratorio = await laboratoriosStore.fetchLaboratorio(route.params.id);
+      const local = await locaisStore.fetchLocal(route.params.id);
       Object.keys(form.value).forEach(key => {
-        if (laboratorio[key] !== undefined) {
-          form.value[key] = laboratorio[key];
+        if (local[key] !== undefined) {
+          form.value[key] = local[key];
         }
       });
     } catch (err) {
-      error.value = err.message || 'Erro ao carregar laboratório';
+      error.value = err.message || 'Erro ao carregar local';
     } finally {
       loading.value = false;
     }
@@ -194,14 +176,14 @@ const handleSubmit = async () => {
     error.value = null;
 
     if (isEdit.value) {
-      await laboratoriosStore.updateLaboratorio(route.params.id, form.value);
+      await locaisStore.updateLocal(route.params.id, form.value);
     } else {
-      await laboratoriosStore.createLaboratorio(form.value);
+      await locaisStore.createLocal(form.value);
     }
 
-    router.push('/vue/laboratorios');
+    router.push('/vue/locais');
   } catch (err) {
-    error.value = err.response?.data?.message || 'Erro ao salvar laboratório';
+    error.value = err.response?.data?.message || 'Erro ao salvar local';
   } finally {
     loading.value = false;
   }
@@ -209,7 +191,7 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-.laboratorio-form-page {
+.local-form-page {
   padding: 24px;
   max-width: 1200px;
   margin: 0 auto;
@@ -282,19 +264,6 @@ h1 {
   font-weight: 500;
   color: #374151;
   margin-bottom: 6px;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.checkbox-label input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
 }
 
 .form-control {

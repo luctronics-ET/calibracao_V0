@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Conexão API</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ddd; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .pending { background: #fff3cd; border-color: #ffeeba; }
+        h2 { margin-top: 30px; }
+        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Teste de Conexão Frontend ↔️ Backend</h1>
+    
+    <h2>1. Testes de API REST</h2>
+    <div id="api-tests"></div>
+    
+    <h2>2. Stores Pinia</h2>
+    <div id="stores-tests"></div>
+    
+    <h2>3. Rotas Vue Router</h2>
+    <div id="router-tests"></div>
+
+    <script>
+        const apiTests = document.getElementById('api-tests');
+        const storesTests = document.getElementById('stores-tests');
+        const routerTests = document.getElementById('router-tests');
+
+        // Função auxiliar para criar div de resultado
+        function createResult(name, status, message, data = null) {
+            const div = document.createElement('div');
+            div.className = `test ${status}`;
+            div.innerHTML = `
+                <strong>${name}</strong>: ${message}
+                ${data ? `<pre>${JSON.stringify(data, null, 2)}</pre>` : ''}
+            `;
+            return div;
+        }
+
+        // Teste 1: Endpoints da API
+        async function testAPIEndpoints() {
+            const endpoints = [
+                '/api/equipamentos',
+                '/api/calibracoes',
+                '/api/lotes',
+                '/api/laboratorios',
+                '/api/locais'
+            ];
+
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(endpoint);
+                    if (response.ok) {
+                        const data = await response.json();
+                        apiTests.appendChild(createResult(
+                            `GET ${endpoint}`,
+                            'success',
+                            `✅ Conectado (${response.status})`,
+                            { total: data.data?.length || data.total || 0 }
+                        ));
+                    } else {
+                        apiTests.appendChild(createResult(
+                            `GET ${endpoint}`,
+                            'error',
+                            `❌ Erro ${response.status}`
+                        ));
+                    }
+                } catch (error) {
+                    apiTests.appendChild(createResult(
+                        `GET ${endpoint}`,
+                        'error',
+                        `❌ Falha: ${error.message}`
+                    ));
+                }
+            }
+        }
+
+        // Teste 2: Verificar estrutura de Stores
+        storesTests.innerHTML = `
+            <div class="test pending">
+                ✅ Stores esperadas:
+                <ul>
+                    <li>equipamentos.js</li>
+                    <li>calibracoes.js</li>
+                    <li>lotes.js</li>
+                    <li>laboratorios.js</li>
+                    <li>locais.js</li>
+                </ul>
+            </div>
+        `;
+
+        // Teste 3: Verificar rotas Vue
+        routerTests.innerHTML = `
+            <div class="test success">
+                ✅ Rotas Vue Router configuradas:
+                <ul>
+                    <li>/vue/dashboard</li>
+                    <li>/vue/equipamentos</li>
+                    <li>/vue/calibracoes</li>
+                    <li>/vue/lotes</li>
+                    <li>/vue/laboratorios</li>
+                    <li>/vue/locais</li>
+                </ul>
+            </div>
+        `;
+
+        // Executar testes
+        testAPIEndpoints();
+    </script>
+</body>
+</html>

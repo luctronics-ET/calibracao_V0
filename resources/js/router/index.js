@@ -11,6 +11,8 @@ import LoteForm from "../pages/LoteForm.vue";
 import LoteView from "../pages/LoteView.vue";
 import LaboratoriosList from "../pages/LaboratoriosList.vue";
 import LaboratorioForm from "../pages/LaboratorioForm.vue";
+import LocalList from "../pages/LocalList.vue";
+import LocalForm from "../pages/LocalForm.vue";
 
 const routes = [
   {
@@ -106,6 +108,29 @@ const routes = [
     path: "/vue/laboratorios/:id/editar",
     name: "laboratorios.edit",
     component: LaboratorioForm,
+    props: true,
+  },
+  // Locais
+  {
+    path: "/vue/locais",
+    name: "locais.list",
+    component: LocalList,
+  },
+  {
+    path: "/vue/locais/novo",
+    name: "locais.create",
+    component: LocalForm,
+  },
+  {
+    path: "/vue/locais/:id",
+    name: "locais.view",
+    component: LocalForm,
+    props: true,
+  },
+  {
+    path: "/vue/locais/:id/editar",
+    name: "locais.edit",
+    component: LocalForm,
     props: true,
   },
 ];
