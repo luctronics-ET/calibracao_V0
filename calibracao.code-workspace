@@ -1,0 +1,62 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../templates/tailadmin-free-tailwind-dashboard-template-main"
+		},
+		{
+			"path": "../templates"
+		}
+	],
+	"settings": {
+		"php.suggest.basic": false,
+		"intelephense.files.maxSize": 5000000,
+		"intelephense.stubs": [
+			"apache",
+			"bcmath",
+			"Core",
+			"curl",
+			"date",
+			"dom",
+			"fileinfo",
+			"filter",
+			"hash",
+			"iconv",
+			"json",
+			"libxml",
+			"mbstring",
+			"openssl",
+			"pcre",
+			"PDO",
+			"pdo_sqlite",
+			"Phar",
+			"SimpleXML",
+			"sqlite3",
+			"standard",
+			"tokenizer",
+			"xml",
+			"xmlreader",
+			"xmlwriter",
+			"zip",
+			"zlib"
+		],
+		"files.associations": {
+			"*.blade.php": "blade",
+			"*.env*": "dotenv"
+		},
+		"emmet.includeLanguages": {
+			"blade": "html",
+			"vue": "html"
+		},
+		"sqltools.connections": [
+			{
+				"previewLimit": 50,
+				"driver": "SQLite",
+				"name": "Calibracao Database",
+				"database": "${workspaceFolder}/database/database.sqlite"
+			}
+		]
+	}
+}

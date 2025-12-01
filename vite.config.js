@@ -20,9 +20,11 @@ export default defineConfig({
     hmr: {
       host: "localhost",
       port: 5173,
+      protocol: "ws",
     },
     watch: {
       usePolling: true, // Necessário para containers Docker
     },
+    origin: "http://localhost:5173",
   },
 });

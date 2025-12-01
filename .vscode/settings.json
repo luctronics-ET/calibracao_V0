@@ -93,5 +93,10 @@
   },
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-containers"
+  },
+  "chat.mcp.serverSampling": {
+    "calibracao_V0/.vscode/mcp.json: com.figma.mcp/mcp": {
+      "allowedModels": ["copilot/claude-sonnet-4.5", "copilot/auto"]
+    }
   }
 }

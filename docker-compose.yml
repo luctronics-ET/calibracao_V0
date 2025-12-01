@@ -10,9 +10,7 @@ services:
     restart: unless-stopped
     working_dir: /var/www
     volumes:
-      - ./storage:/var/www/storage
-      - ./bootstrap/cache:/var/www/bootstrap/cache
-      - ./database:/var/www/database
+      - ./:/var/www
     networks:
       - calibracao_network
     environment:

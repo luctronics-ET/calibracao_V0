@@ -9,8 +9,14 @@ use App\Http\Controllers\LogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\VueAppController;
 
-// Dashboard
+// Vue SPA - Nova Interface IGP
+Route::get('/vue/{any?}', [VueAppController::class, 'index'])
+    ->where('any', '.*')
+    ->name('vue.app');
+
+// Dashboard Original (Blade)
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 // Resource Routes

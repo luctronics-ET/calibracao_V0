@@ -2,103 +2,104 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Traits\Auditable;
+use Illuminate\Database\Eloquent\Model;
 
 class Equipamento extends Model
 {
-    use HasFactory, Auditable;
+    use HasFactory;
+
+    protected $table = 'equipamentos';
+    public $timestamps = false;
 
     protected $fillable = [
-        'divisao_origem',
+        'categoria_metrologica',
         'tipo',
-        'categoria',
         'fabricante',
         'modelo',
-        'serie',
+        'numero_serie',
         'codigo_interno',
         'descricao',
-        'local_fisico_atual',
-        'ciclo_meses',
-        'criticidade',
-        'classe_metrologica',
+        'local_dotacao_id',
+        'localizacao_atual_id',
+        'classe_exatidao',
         'resolucao',
-        'faixa_medicao',
-        'mpe',
-        'norma_aplicavel',
-        'data_proxima_calibracao',
-        'status_calibracao',
-        'foto',
-        // Campos adicionados do CSV
-        'classe',
-        'especificacoes',
-        'patrimonio',
-        'status',
-        'setor',
-        // Dimensões físicas
-        'altura',
-        'largura',
-        'comprimento',
-        'tensao',
-        'potencia',
-        // Documentação
-        'manual_pdf',
-        'link_fabricante',
-        'instrucao_uso',
-        'instrucao_operacao',
-        'instrucao_seguranca',
-        // Metrologia avançada
-        'incerteza_nominal',
-        'categoria_metrologica',
-        // Financeiro
-        'valor_aquisicao',
-        'data_aquisicao',
-        'custo_estimado',
-        'responsavel',
-        // Matriz IGP
-        'frequencia_uso',
-        'necessidade_critica',
-        'abundancia',
-        'criticidade_metrologica',
-        'custo_indisponibilidade',
-        'igp',
-        'classificacao',
+        'intervalo_medicao_min',
+        'intervalo_medicao_max',
+        'cond_temp_operacao',
+        'cond_umidade_operacao',
+        'cond_ambiente_restricoes',
+        'criticidade_equipamento',
+        'intervalo_calibracao_meses',
+        'justificativa_intervalo',
+        'proxima_calibracao_prevista',
+        'custo_previsto_calibracao',
+        'bloqueado_para_uso',
+        'motivo_bloqueio',
+        'responsavel_tecnico',
+        'responsavel_cadastramento',
+        'observacoes_auditoria',
+        'data_cadastro',
+        'ultima_atualizacao',
     ];
 
     protected $casts = [
-        'data_proxima_calibracao' => 'datetime',
-        'data_aquisicao' => 'date',
-        'altura' => 'decimal:2',
-        'largura' => 'decimal:2',
-        'comprimento' => 'decimal:2',
-        'valor_aquisicao' => 'decimal:2',
-        'custo_estimado' => 'decimal:2',
-        'frequencia_uso' => 'integer',
-        'necessidade_critica' => 'integer',
-        'abundancia' => 'integer',
-        'criticidade_metrologica' => 'integer',
-        'custo_indisponibilidade' => 'integer',
-        'igp' => 'integer',
+        'intervalo_medicao_min' => 'float',
+        'intervalo_medicao_max' => 'float',
+        'custo_previsto_calibracao' => 'decimal:2',
+        'bloqueado_para_uso' => 'boolean',
+        'proxima_calibracao_prevista' => 'date',
+        'data_cadastro' => 'date',
+        'ultima_atualizacao' => 'date',
     ];
 
+    public function localDotacao()
+    {
+        return $this->belongsTo(Local::class, 'local_dotacao_id');
+    }
+    public function localizacaoAtual()
+    {
+        return $this->belongsTo(Local::class, 'localizacao_atual_id');
+    }
     public function calibracoes()
     {
         return $this->hasMany(Calibracao::class);
     }
-
-    public function parametros()
+    public function padroes()
     {
-        return $this->hasMany(ParametroMetrologico::class);
+        return $this->belongsToMany(Padrao::class, 'equipamento_padroes');
     }
-
+    public function documentos()
+    {
+        return $this->hasMany(EquipamentoDocumento::class);
+    }
+    public function manutencoes()
+    {
+        return $this->hasMany(Manutencao::class);
+    }
+    public function condicoesAmbientais()
+    {
+        return $this->hasMany(CondicaoAmbiental::class);
+    }
+    public function cronogramaEstagios()
+    {
+        return $this->hasMany(CronogramaEstagio::class);
+    }
     public function lotes()
     {
-        return $this->belongsToMany(LoteEnvio::class, 'lote_itens');
+        return $this->belongsToMany(Lote::class, 'lote_equipamentos');
+    }
+    public function logisticaEventos()
+    {
+        return $this->hasMany(LogisticaEvento::class);
     }
 
-    public function loteItens()
+    public function scopeBuscar($query, $termo)
     {
-        return $this->hasMany(LoteItem::class);
+        return $query->where(function ($q) use ($termo) {
+            $q->where('codigo_interno', 'like', "%{$termo}%")
+                ->orWhere('numero_serie', 'like', "%{$termo}%")
+                ->orWhere('tipo', 'like', "%{$termo}%");
+        });
     }
 }

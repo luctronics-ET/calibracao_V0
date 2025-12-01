@@ -1,0 +1,33 @@
+nohup: ignorando entrada
+
+> calibracao-frontend@0.1.0 dev
+> vite
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+  VITE v5.4.21  ready in 615 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: http://192.168.0.117:5173/
+  ➜  Network: http://172.18.0.1:5173/
+  ➜  Network: http://172.26.0.1:5173/
+06:54:55 [vite] page reload js/router/index.js
+06:55:35 [vite] page reload js/router/index.js
+06:59:18 [vite] hmr update /js/components/Dashboard.vue
+07:04:16 [vite] page reload js/router/index.js
+07:04:29 [vite] page reload js/router/index.js
+07:07:18 [vite] page reload js/router/index.js
+07:17:14 [vite] hmr update /js/pages/CalibracoesList.vue
+07:17:42 [vite] hmr update /js/pages/CalibracoesList.vue?vue&type=style&index=0&scoped=59327e3c&lang.css
+07:18:08 [vite] hmr update /js/pages/LotesList.vue
+07:18:36 [vite] hmr update /js/pages/LotesList.vue?vue&type=style&index=0&scoped=94eaa86e&lang.css
+07:19:13 [vite] hmr update /js/pages/LaboratoriosList.vue
+07:19:47 [vite] hmr update /js/pages/LaboratoriosList.vue?vue&type=style&index=0&scoped=55a8f07a&lang.css
+07:20:11 [vite] hmr update /js/pages/EquipamentosList.vue
+07:20:41 [vite] hmr update /js/pages/EquipamentosList.vue?vue&type=style&index=0&scoped=f1ebb44d&lang.css
+00:26:24 [vite] hmr update /js/pages/EquipamentosList.vue, /js/pages/EquipamentosForm.vue, /js/pages/EquipamentosView.vue, /js/components/EquipamentoCard.vue, /js/pages/CalibracaoForm.vue, /js/pages/LoteView.vue
+00:26:24 [vite] hmr update /js/pages/CalibracoesList.vue, /js/pages/CalibracaoForm.vue, /js/pages/CalibracaoView.vue
+00:26:24 [vite] hmr update /js/pages/CalibracaoForm.vue, /js/pages/LoteForm.vue, /js/pages/LaboratorioForm.vue, /js/pages/LaboratoriosList.vue
+00:26:24 [vite] hmr update /js/pages/LoteForm.vue, /js/pages/LoteView.vue, /js/pages/LotesList.vue
+00:26:24 [vite] hmr update /js/pages/CalibracaoForm.vue, /js/pages/LoteForm.vue, /js/pages/LaboratorioForm.vue, /js/pages/LaboratoriosList.vue
+00:27:22 [vite] hmr update /js/components/Dashboard.vue
