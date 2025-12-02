@@ -1,336 +1,371 @@
-@extends('layouts.tailadmin')
+@extends('layouts.app')
+
+@section('title', 'Visualizar Equipamento - Sistema de Calibração')
+
+@section('page-title', 'Equipamento #' . $equipamento->id)
+
+@section('breadcrumb')
+<nav class="flex mb-6" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+            <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                <i class="fas fa-home mr-2"></i>
+                Dashboard
+            </a>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                <a href="{{ route('equipamentos.index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">Equipamentos</a>
+            </div>
+        </li>
+        <li aria-current="page">
+            <div class="flex items-center">
+                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">#{{ $equipamento->id }}</span>
+            </div>
+        </li>
+    </ol>
+</nav>
+@endsection
 
 @section('content')
-    @php
-        $breadcrumbs = [
-            ['label' => 'Dashboard', 'url' => route('dashboard')],
-            ['label' => 'Equipamentos', 'url' => route('equipamentos.index')],
-            ['label' => $equipamento->codigo_interno, 'url' => '']
-        ];
-    @endphp
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+        <i class="fas fa-cube text-blue-600"></i>
+        <span>{{ $equipamento->equipamento_tipo ?? 'Equipamento' }} #{{ $equipamento->id }}</span>
 
-    <!-- Header com Badge de Status -->
-    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-6 mb-6 text-white">
-        <div class="flex justify-between items-start">
-            <div>
-                <div class="flex items-center gap-3 mb-2">
-                    <h1 class="text-3xl font-bold">{{ $equipamento->codigo_interno }}</h1>
-                    @if($equipamento->criticidade === 'critica')
-                        <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">🔴 CRÍTICA</span>
-                    @elseif($equipamento->criticidade === 'alta')
-                        <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">🟠 ALTA</span>
-                    @elseif($equipamento->criticidade === 'media')
-                        <span class="bg-blue-400 text-white px-3 py-1 rounded-full text-xs font-semibold">🔵 MÉDIA</span>
-                    @else
-                        <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">🟢 BAIXA</span>
-                    @endif
-                </div>
-                <p class="text-indigo-100 text-lg">{{ $equipamento->tipo }} - {{ $equipamento->fabricante ?? 'N/A' }}
-                </p>
-                <p class="text-indigo-200 text-sm mt-1">Modelo: {{ $equipamento->modelo ?? 'N/A' }} | Série:
-                    {{ $equipamento->serie ?? 'N/A' }}
-                </p>
-            </div>
-            <div class="flex gap-2">
-                <a href="{{ route('equipamentos.historico', $equipamento) }}"
-                    class="bg-white/20 hover:bg-white/30 backdrop-blur text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    PDF
-                </a>
-                <a href="{{ route('equipamentos.edit', $equipamento) }}"
-                    class="bg-white text-indigo-600 hover:bg-indigo-50 px-4 py-2 rounded-lg text-sm font-medium transition">Editar</a>
-                <a href="{{ route('equipamentos.index') }}"
-                    class="bg-white/20 hover:bg-white/30 backdrop-blur text-white px-4 py-2 rounded-lg text-sm transition">Voltar</a>
-            </div>
-        </div>
+        @if($equipamento->equipamento_status === 'ativo')
+            <x-badge variant="success">Ativo</x-badge>
+        @elseif($equipamento->equipamento_status === 'inativo')
+            <x-badge variant="default">Inativo</x-badge>
+        @elseif($equipamento->equipamento_status === 'manutencao')
+            <x-badge variant="warning">Manutenção</x-badge>
+        @else
+            <x-badge variant="danger">Descartado</x-badge>
+        @endif
+    </h2>
+
+    <div class="flex gap-2">
+        <x-button variant="secondary" icon="fas fa-edit" :href="route('equipamentos.edit', $equipamento->id)">
+            Editar
+        </x-button>
+
+        <x-button variant="outline" icon="fas fa-arrow-left" :href="route('equipamentos.index')">
+            Voltar
+        </x-button>
     </div>
+</div>
 
-    <!-- Grid de 3 colunas responsivo -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- Coluna 1: Info Principal -->
-        <div class="space-y-4">
+    <!-- Coluna Principal -->
+    <div class="lg:col-span-2 space-y-6">
 
-            <!-- Card: Identificação -->
-            <div class="bg-white shadow-lg rounded-xl p-5 border border-gray-100 hover:shadow-xl transition">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="bg-indigo-100 p-2 rounded-lg">
-                        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-gray-800">Identificação</h3>
+        <!-- Informações Básicas -->
+        <x-card title="Informações Básicas" icon="fas fa-info-circle">
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Classe</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $equipamento->equipamento_classe ?? '-' }}</dd>
                 </div>
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Categoria</span>
-                        <span class="font-semibold text-gray-800">{{ $equipamento->categoria ?? '-' }}</span>
-                    </div>
-                    @if($equipamento->descricao)
-                        <div class="pt-3 border-t">
-                            <span class="text-gray-500 text-xs">Descrição</span>
-                            <p class="text-gray-700 mt-1">{{ $equipamento->descricao }}</p>
-                        </div>
-                    @endif
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Tipo</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $equipamento->equipamento_tipo ?? '-' }}</dd>
                 </div>
-            </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Código Interno</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white font-mono">{{ $equipamento->equipamento_codigo_interno ?? '-' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Número de Série</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white font-mono">{{ $equipamento->equipamento_serial ?? '-' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Fabricante</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $equipamento->equipamento_fabricante ?? '-' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Modelo</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $equipamento->equipamento_modelo ?? '-' }}</dd>
+                </div>
+            </dl>
+        </x-card>
 
-            <!-- Card: Localização -->
-            <div class="bg-white shadow-lg rounded-xl p-5 border border-gray-100 hover:shadow-xl transition">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="bg-green-100 p-2 rounded-lg">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-gray-800">Localização</h3>
+        <!-- Características Técnicas -->
+        <x-card title="Características Técnicas" icon="fas fa-cogs">
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Resolução</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $equipamento->equipamento_resolucao ?? '-' }}</dd>
                 </div>
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Divisão</span>
-                        <span class="font-semibold text-gray-800">{{ $equipamento->divisao_origem ?? '-' }}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Local</span>
-                        <span class="font-semibold text-gray-800">{{ $equipamento->local_fisico_atual ?? '-' }}</span>
-                    </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Faixa de Medição</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $equipamento->equipamento_faixa_medicao ?? '-' }}</dd>
                 </div>
-            </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Incerteza Nominal</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $equipamento->equipamento_incerteza_nominal ?? '-' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Dimensões (A×L×C)</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                        @if($equipamento->equipamento_altura_mm || $equipamento->equipamento_largura_mm || $equipamento->equipamento_comprimento_mm)
+                            {{ $equipamento->equipamento_altura_mm ?? '?' }}×{{ $equipamento->equipamento_largura_mm ?? '?' }}×{{ $equipamento->equipamento_comprimento_mm ?? '?' }} mm
+                        @else
+                            -
+                        @endif
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Tensão</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $equipamento->equipamento_tensao_v ? $equipamento->equipamento_tensao_v . ' V' : '-' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Potência</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $equipamento->equipamento_potencia_w ? $equipamento->equipamento_potencia_w . ' W' : '-' }}</dd>
+                </div>
+            </dl>
+        </x-card>
 
-            <!-- Card: Calibração -->
-            <div class="bg-white shadow-lg rounded-xl p-5 border border-gray-100 hover:shadow-xl transition">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="bg-blue-100 p-2 rounded-lg">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-gray-800">Calibração</h3>
+        <!-- Calibração -->
+        <x-card title="Dados de Calibração" icon="fas fa-calendar-check">
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Última Calibração</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                        {{ $equipamento->equipamento_data_ultima_calibracao ? \Carbon\Carbon::parse($equipamento->equipamento_data_ultima_calibracao)->format('d/m/Y') : '-' }}
+                    </dd>
                 </div>
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Ciclo</span>
-                        <span class="font-semibold text-gray-800">{{ $equipamento->ciclo_meses ?? 12 }} meses</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Total</span>
-                        <span
-                            class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-bold">{{ $equipamento->calibracoes->count() }}</span>
-                    </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Próxima Calibração</dt>
+                    <dd class="mt-1 text-sm">
+                        @if($equipamento->equipamento_data_proxima_calibracao)
+                            @php
+                                $proximaData = \Carbon\Carbon::parse($equipamento->equipamento_data_proxima_calibracao);
+                                $vencida = $proximaData->isPast();
+                                $aVencer = $proximaData->isBetween(now(), now()->addDays(30));
+                            @endphp
+
+                            @if($vencida)
+                                <x-badge variant="danger">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    {{ $proximaData->format('d/m/Y') }} (Vencida)
+                                </x-badge>
+                            @elseif($aVencer)
+                                <x-badge variant="warning">
+                                    <i class="fas fa-clock"></i>
+                                    {{ $proximaData->format('d/m/Y') }} (A vencer)
+                                </x-badge>
+                            @else
+                                <span class="text-gray-900 dark:text-white">{{ $proximaData->format('d/m/Y') }}</span>
+                            @endif
+                        @else
+                            -
+                        @endif
+                    </dd>
                 </div>
-            </div>
-
-        </div>
-
-        <!-- Coluna 2: Metrologia e Foto -->
-        <div class="space-y-4">
-
-            <!-- Card: Dados Metrológicos -->
-            <div class="bg-white shadow-lg rounded-xl p-5 border border-gray-100 hover:shadow-xl transition">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="bg-purple-100 p-2 rounded-lg">
-                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-gray-800">Dados Metrológicos</h3>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Periodicidade</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                        {{ $equipamento->equipamento_periodicidade_meses ? $equipamento->equipamento_periodicidade_meses . ' meses' : '-' }}
+                    </dd>
                 </div>
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Classe</span>
-                        <span class="font-semibold text-gray-800">{{ $equipamento->classe_metrologica ?? '-' }}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Resolução</span>
-                        <span class="font-semibold text-gray-800">{{ $equipamento->resolucao ?? '-' }}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Faixa</span>
-                        <span class="font-semibold text-gray-800">{{ $equipamento->faixa_medicao ?? '-' }}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">MPE</span>
-                        <span class="font-semibold text-gray-800">{{ $equipamento->mpe ?? '-' }}</span>
-                    </div>
-                    <div class="pt-3 border-t">
-                        <span class="text-gray-500 text-xs">Norma Aplicável</span>
-                        <p class="text-gray-700 font-medium mt-1">{{ $equipamento->norma_aplicavel ?? '-' }}</p>
-                    </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Local de Calibração</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $equipamento->equipamento_local_calibracao ?? '-' }}</dd>
                 </div>
-            </div>
+            </dl>
+        </x-card>
 
-            @if($equipamento->foto)
-                <!-- Card: Foto -->
-                <div class="bg-white shadow-lg rounded-xl p-5 border border-gray-100 hover:shadow-xl transition">
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="bg-pink-100 p-2 rounded-lg">
-                            <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-gray-800">Foto</h3>
-                    </div>
-                    <img src="{{ asset('storage/' . $equipamento->foto) }}" alt="Foto"
-                        class="w-full rounded-lg shadow-md border border-gray-200">
+        <!-- Documentação -->
+        @if($equipamento->equipamento_instrucao_uso || $equipamento->equipamento_instrucao_operacao || $equipamento->equipamento_instrucao_seguranca || $equipamento->equipamento_comentarios)
+        <x-card title="Documentação e Instruções" icon="fas fa-file-alt">
+            @if($equipamento->equipamento_instrucao_uso)
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Instruções de Uso</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line">{{ $equipamento->equipamento_instrucao_uso }}</p>
                 </div>
             @endif
 
-        </div>
-
-        <!-- Coluna 3: Históricos -->
-        <div class="space-y-4">
-
-            <!-- Card: Histórico de Calibrações -->
-            <div class="bg-white shadow-lg rounded-xl p-5 border border-gray-100 hover:shadow-xl transition">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="bg-emerald-100 p-2 rounded-lg">
-                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-gray-800">Histórico de Calibrações</h3>
+            @if($equipamento->equipamento_instrucao_operacao)
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Instruções de Operação</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line">{{ $equipamento->equipamento_instrucao_operacao }}</p>
                 </div>
-                @if($equipamento->calibracoes->count() > 0)
-                    <div class="space-y-2">
-                        @foreach($equipamento->calibracoes->sortByDesc('data_calibracao')->take(5) as $calibracao)
-                            <div
-                                class="bg-gradient-to-br from-gray-50 to-gray-100 p-3 rounded-lg border border-gray-200 hover:border-emerald-300 transition">
-                                <div class="flex justify-between items-start mb-2">
-                                    <span
-                                        class="text-sm font-bold text-gray-700">{{ \Carbon\Carbon::parse($calibracao->data_calibracao)->format('d/m/Y') }}</span>
-                                    @if($calibracao->resultado === 'aprovado')
-                                        <span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">✓
-                                            Aprovado</span>
-                                    @elseif($calibracao->resultado === 'reprovado')
-                                        <span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">✗
-                                            Reprovado</span>
-                                    @elseif($calibracao->resultado === 'condicional')
-                                        <span class="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-semibold">!
-                                            Condicional</span>
-                                    @endif
-                                </div>
-                                <div class="text-xs text-gray-600 space-y-1">
-                                    <div class="flex items-center gap-1">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        Validade: <span
-                                            class="font-medium">{{ \Carbon\Carbon::parse($calibracao->data_validade)->format('d/m/Y') }}</span>
-                                    </div>
-                                    @if($calibracao->certificado_num)
-                                        <div class="flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                            Cert: <span class="font-medium">{{ $calibracao->certificado_num }}</span>
-                                        </div>
-                                    @endif
-                                    @if($calibracao->laboratorio_nome)
-                                        <div class="flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                            </svg>
-                                            {{ $calibracao->laboratorio_nome }}
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                        @if($equipamento->calibracoes->count() > 5)
-                            <div class="text-center pt-2">
-                                <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                                    + {{ $equipamento->calibracoes->count() - 5 }} calibrações anteriores
-                                </span>
-                            </div>
+            @endif
+
+            @if($equipamento->equipamento_instrucao_seguranca)
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Instruções de Segurança</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line">{{ $equipamento->equipamento_instrucao_seguranca }}</p>
+                </div>
+            @endif
+
+            @if($equipamento->equipamento_comentarios)
+                <div>
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Comentários</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line">{{ $equipamento->equipamento_comentarios }}</p>
+                </div>
+            @endif
+        </x-card>
+        @endif
+
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+
+        <!-- Foto -->
+        @if($equipamento->equipamento_foto)
+        <x-card title="Foto" icon="fas fa-camera">
+            <img src="{{ asset('storage/' . $equipamento->equipamento_foto) }}" alt="Foto do equipamento" class="w-full rounded-lg">
+        </x-card>
+        @endif
+
+        <!-- Status e Localização -->
+        <x-card title="Status e Localização" icon="fas fa-map-marker-alt">
+            <dl class="space-y-3">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</dt>
+                    <dd class="mt-1">
+                        @if($equipamento->equipamento_status === 'ativo')
+                            <x-badge variant="success"><i class="fas fa-check-circle"></i> Ativo</x-badge>
+                        @elseif($equipamento->equipamento_status === 'inativo')
+                            <x-badge variant="default"><i class="fas fa-pause-circle"></i> Inativo</x-badge>
+                        @elseif($equipamento->equipamento_status === 'manutencao')
+                            <x-badge variant="warning"><i class="fas fa-tools"></i> Manutenção</x-badge>
+                        @else
+                            <x-badge variant="danger"><i class="fas fa-ban"></i> Descartado</x-badge>
                         @endif
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Localização</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $equipamento->equipamento_localizacao ?? '-' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Setor</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $equipamento->equipamento_setor ?? '-' }}</dd>
+                </div>
+            </dl>
+        </x-card>
+
+        <!-- IGP -->
+        <x-card title="Índice IGP" icon="fas fa-chart-line">
+            <div class="text-center">
+                @if($equipamento->equipamento_igp)
+                    @php
+                        $igp = $equipamento->equipamento_igp;
+                        if($igp >= 12) {
+                            $color = 'red';
+                            $label = 'Alta';
+                        } elseif($igp >= 7) {
+                            $color = 'yellow';
+                            $label = 'Média';
+                        } else {
+                            $color = 'green';
+                            $label = 'Baixa';
+                        }
+                    @endphp
+                    <div class="text-4xl font-bold text-{{ $color }}-600 dark:text-{{ $color }}-400 mb-2">
+                        {{ $igp }}
                     </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Classificação: <strong>{{ $label }}</strong>
+                    </div>
+
+                    <dl class="space-y-2 text-sm text-left">
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500 dark:text-gray-400">Frequência de Uso:</dt>
+                            <dd class="font-medium text-gray-900 dark:text-white">{{ $equipamento->equipamento_frequencia_uso ?? '-' }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500 dark:text-gray-400">Necessidade Crítica:</dt>
+                            <dd class="font-medium text-gray-900 dark:text-white">{{ $equipamento->equipamento_necessidade_critica ?? '-' }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500 dark:text-gray-400">Abundância:</dt>
+                            <dd class="font-medium text-gray-900 dark:text-white">{{ $equipamento->equipamento_abundancia ?? '-' }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500 dark:text-gray-400">Custo Indisponibilidade:</dt>
+                            <dd class="font-medium text-gray-900 dark:text-white">{{ $equipamento->equipamento_custo_indisponibilidade ?? '-' }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500 dark:text-gray-400">Criticidade Metrológica:</dt>
+                            <dd class="font-medium text-gray-900 dark:text-white">{{ $equipamento->equipamento_criticidade_metrologica ?? '-' }}</dd>
+                        </div>
+                    </dl>
                 @else
-                    <div class="text-center py-4">
-                        <svg class="w-4 h-4 mx-auto text-gray-300 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <p class="text-gray-400 text-xs">Nenhuma calibração registrada</p>
-                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">IGP não calculado</p>
                 @endif
             </div>
+        </x-card>
 
-            <!-- Card: Histórico de Lotes -->
-            <div class="bg-white shadow-lg rounded-xl p-5 border border-gray-100 hover:shadow-xl transition">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="bg-orange-100 p-2 rounded-lg">
-                        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-gray-800">Histórico de Lotes</h3>
+        <!-- Dados Financeiros -->
+        @if($equipamento->valor_aquisicao || $equipamento->equipamento_custo_estimado || $equipamento->data_aquisicao)
+        <x-card title="Dados Financeiros" icon="fas fa-dollar-sign">
+            <dl class="space-y-3">
+                @if($equipamento->valor_aquisicao)
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Valor de Aquisição</dt>
+                    <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                        R$ {{ number_format($equipamento->valor_aquisicao, 2, ',', '.') }}
+                    </dd>
                 </div>
-                @if($equipamento->loteItens->count() > 0)
-                    <div class="space-y-2">
-                        @foreach($equipamento->loteItens->sortByDesc('loteEnvio.data_envio')->take(5) as $item)
-                            <div
-                                class="bg-gradient-to-br from-orange-50 to-yellow-50 p-3 rounded-lg border border-orange-200 hover:border-orange-400 transition">
-                                <div class="flex justify-between items-start mb-2">
-                                    <span class="text-sm font-bold text-gray-700">Lote #{{ $item->lote_envio_id }}</span>
-                                    <span class="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                                        {{ ucfirst(str_replace('_', ' ', $item->loteEnvio->status)) }}
-                                    </span>
-                                </div>
-                                <div class="text-xs text-gray-600 space-y-1">
-                                    <div class="flex items-center gap-1">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        Envio: <span
-                                            class="font-medium">{{ \Carbon\Carbon::parse($item->loteEnvio->data_envio)->format('d/m/Y') }}</span>
-                                    </div>
-                                    @if($item->loteEnvio->laboratorio)
-                                        <div class="flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                            </svg>
-                                            {{ $item->loteEnvio->laboratorio->nome }}
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                        @if($equipamento->loteItens->count() > 5)
-                            <div class="text-center pt-2">
-                                <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                                    + {{ $equipamento->loteItens->count() - 5 }} lotes anteriores
-                                </span>
-                            </div>
-                        @endif
-                    </div>
-                @else
-                    <div class="text-center py-4">
-                        <svg class="w-4 h-4 mx-auto text-gray-300 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        <p class="text-gray-400 text-xs">Não incluído em lotes</p>
-                    </div>
+                @endif
+
+                @if($equipamento->equipamento_custo_estimado)
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Custo de Calibração</dt>
+                    <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                        R$ {{ number_format($equipamento->equipamento_custo_estimado, 2, ',', '.') }}
+                    </dd>
+                </div>
+                @endif
+
+                @if($equipamento->data_aquisicao)
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Data de Aquisição</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                        {{ \Carbon\Carbon::parse($equipamento->data_aquisicao)->format('d/m/Y') }}
+                    </dd>
+                </div>
+                @endif
+            </dl>
+        </x-card>
+        @endif
+
+        <!-- Links e Documentos -->
+        @if($equipamento->equipamento_link_fabricante || $equipamento->equipamento_manual_pdf || $equipamento->equipamento_certificado_pdf)
+        <x-card title="Links e Documentos" icon="fas fa-link">
+            <div class="space-y-2">
+                @if($equipamento->equipamento_link_fabricante)
+                    <a href="{{ $equipamento->equipamento_link_fabricante }}" target="_blank" class="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                        <i class="fas fa-external-link-alt"></i>
+                        Site do Fabricante
+                    </a>
+                @endif
+
+                @if($equipamento->equipamento_manual_pdf)
+                    <a href="{{ asset('storage/' . $equipamento->equipamento_manual_pdf) }}" target="_blank" class="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                        <i class="fas fa-file-pdf"></i>
+                        Manual do Equipamento
+                    </a>
+                @endif
+
+                @if($equipamento->equipamento_certificado_pdf)
+                    <a href="{{ asset('storage/' . $equipamento->equipamento_certificado_pdf) }}" target="_blank" class="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                        <i class="fas fa-certificate"></i>
+                        Certificado de Calibração
+                    </a>
                 @endif
             </div>
+        </x-card>
+        @endif
 
-        </div>
+    </div>
+
+</div>
 @endsection

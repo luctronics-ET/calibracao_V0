@@ -1,334 +1,206 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-
+<html lang="pt-BR"
+      x-data="{ darkMode: false, sidebarOpen: false }"
+      x-init="darkMode = JSON.parse(localStorage.getItem('darkMode') || 'false');
+              $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))"
+      :class="{'dark': darkMode}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Sistema de Calibração')</title>
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <title>@yield('title', 'CalibSys - Sistema de Calibração')</title>
 
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+
+    <!-- Custom Styles -->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
         * {
-            margin: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .dark ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* DataTables customização */
+        .dataTables_wrapper {
             padding: 0;
-            box-sizing: border-box;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f7fa;
-            color: #333;
-        }
-
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .navbar nav {
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-        .navbar a:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .navbar a.active {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .card-header h2 {
-            color: #667eea;
-            font-size: 1.8rem;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #059669;
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table th {
-            background: #f9fafb;
-            padding: 1rem;
-            text-align: left;
+        table.dataTable thead th {
             font-weight: 600;
-            color: #6b7280;
-            border-bottom: 2px solid #e5e7eb;
+            border-bottom: 2px solid #e2e8f0;
         }
 
-        table td {
-            padding: 1rem;
-            border-bottom: 1px solid #f3f4f6;
+        .dark table.dataTable thead th {
+            border-bottom-color: #374151;
         }
 
-        table tr:hover {
-            background: #f9fafb;
+        table.dataTable tbody tr:hover {
+            background-color: #f8fafc !important;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.875rem;
-            font-weight: 500;
+        .dark table.dataTable tbody tr:hover {
+            background-color: #1f2937 !important;
         }
 
-        .badge-success {
-            background: #d1fae5;
-            color: #065f46;
+        /* Animações suaves */
+        .transition-all {
+            transition: all 0.3s ease;
         }
 
-        .badge-warning {
-            background: #fef3c7;
-            color: #92400e;
+        /* Estilo dos botões do DataTables */
+        .dt-buttons {
+            margin-bottom: 1rem;
         }
 
-        .badge-danger {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .badge-info {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #374151;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 1rem;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border-left: 4px solid #10b981;
-        }
-
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border-left: 4px solid #ef4444;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .stat-card h3 {
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-        }
-
-        .stat-card .value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        /* Pagination Styles */
-        .pagination-wrapper {
-            display: flex;
-            justify-content: center;
-            margin-top: 2rem;
-            padding: 1rem 0;
-        }
-
-        .pagination-wrapper nav {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .pagination-wrapper nav span,
-        .pagination-wrapper nav a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 40px;
-            height: 40px;
-            padding: 0.5rem 1rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            background: white;
-            color: #374151;
-            text-decoration: none;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-        }
-
-        .pagination-wrapper nav a:hover {
-            background: #667eea;
-            border-color: #667eea;
-            color: white;
-        }
-
-        .pagination-wrapper nav span[aria-current="page"] {
-            background: #667eea;
-            border-color: #667eea;
-            color: white;
-            font-weight: 600;
-        }
-
-        .pagination-wrapper nav span[aria-disabled="true"] {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: #f9fafb;
-        }
-
-        .pagination-wrapper nav .text-gray-500 {
-            color: #6b7280;
-            border: none;
-            background: transparent;
+        .dt-button {
+            margin-right: 0.5rem !important;
         }
     </style>
 
-    @yield('styles')
+    @stack('styles')
 </head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
 
-<body>
-    <div class="navbar">
-        <h1>🔧 Sistema de Calibração</h1>
-        <nav>
-            <a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Dashboard</a>
-            <a href="/equipamentos" class="{{ request()->is('equipamentos*') ? 'active' : '' }}">Equipamentos</a>
-            <a href="/calibracoes" class="{{ request()->is('calibracoes*') ? 'active' : '' }}">Calibrações</a>
-            <a href="/lotes" class="{{ request()->is('lotes*') ? 'active' : '' }}">Lotes de Envio</a>
-            <a href="/laboratorios" class="{{ request()->is('laboratorios*') ? 'active' : '' }}">Laboratórios</a>
-            <a href="/logs" class="{{ request()->is('logs*') ? 'active' : '' }}">Logs</a>
-        </nav>
+    <!-- Page Wrapper -->
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Sidebar -->
+        @include('layouts.partials.sidebar')
+
+        <!-- Content Area -->
+        <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+
+            <!-- Header -->
+            @include('layouts.partials.header')
+
+            <!-- Main Content -->
+            <main class="flex-1">
+                <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
+
+                    <!-- Breadcrumb -->
+                    @yield('breadcrumb')
+
+                    <!-- Flash Messages -->
+                    @if(session('success'))
+                        <div class="mb-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4" role="alert">
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-600 dark:text-green-400 mr-3"></i>
+                                <span class="text-sm font-medium text-green-800 dark:text-green-200">{{ session('success') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4" role="alert">
+                            <div class="flex items-center">
+                                <i class="fas fa-exclamation-circle text-red-600 dark:text-red-400 mr-3"></i>
+                                <span class="text-sm font-medium text-red-800 dark:text-red-200">{{ session('error') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($errors->any())
+                        <div class="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4" role="alert">
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 mr-3"></i>
+                                <span class="text-sm font-semibold text-red-800 dark:text-red-200">Erros encontrados:</span>
+                            </div>
+                            <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-300 ml-6">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <!-- Page Content -->
+                    @yield('content')
+
+                </div>
+            </main>
+
+            <!-- Footer -->
+            @include('layouts.partials.footer')
+
+        </div>
     </div>
 
-    <div class="container">
-        @yield('content')
-    </div>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
-    @yield('scripts')
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+    <!-- DataTables Buttons -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Default DataTable Configuration -->
+    <script>
+        // Configuração global do DataTables em português
+        window.dataTablesPtBr = {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+        };
+
+        $(document).ready(function() {
+            // Configuração padrão para tabelas com classe .data-table
+            $('.data-table').DataTable({
+                responsive: true,
+                language: window.dataTablesPtBr,
+                pageLength: 25,
+                order: [[0, 'desc']]
+            });
+        });
+    </script>
+
+    @stack('scripts')
+
 </body>
-
 </html>

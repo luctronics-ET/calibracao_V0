@@ -1,28 +1,22 @@
-{{-- Card Component --}}
 @props([
-    'title' => null,
+    'title' => '',
     'icon' => null,
-    'iconBg' => 'bg-indigo-100',
-    'iconColor' => 'text-indigo-600',
-    'padding' => 'p-5',
-    'shadow' => 'shadow-lg',
+    'padding' => true
 ])
 
-<div {{ $attributes->merge(['class' => "bg-white {$shadow} rounded-xl {$padding} border border-gray-100 hover:shadow-xl transition dark:bg-gray-800 dark:border-gray-700"]) }}>
+<div {{ $attributes->merge(['class' => 'rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm']) }}>
     @if($title || $icon)
-        <div class="flex items-center gap-2 mb-4">
-            @if($icon)
-                <div class="{{ $iconBg }} p-2 rounded-lg">
-                    {!! $icon !!}
-                </div>
-            @endif
-            @if($title)
-                <h3 class="font-bold text-gray-800 dark:text-white">{{ $title }}</h3>
-            @endif
+        <div class="border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                @if($icon)
+                    <i class="{{ $icon }} text-blue-600 dark:text-blue-400"></i>
+                @endif
+                {{ $title }}
+            </h3>
         </div>
     @endif
-    
-    <div>
+
+    <div class="{{ $padding ? 'px-6 py-4' : '' }}">
         {{ $slot }}
     </div>
 </div>

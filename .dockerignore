@@ -6,6 +6,11 @@
 *.md
 !README*.md
 
+# Pasta de referências (desenvolvimento)
+# Arquivos de backup, documentação e exemplos que não devem ir para produção
+____referencias/
+___delete___/
+
 # Development
 node_modules/
 vendor/

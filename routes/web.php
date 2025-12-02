@@ -5,6 +5,11 @@ use App\Http\Controllers\EquipamentoController;
 use App\Http\Controllers\CalibracaoController;
 use App\Http\Controllers\LoteController;
 use App\Http\Controllers\LaboratorioController;
+use App\Http\Controllers\ContratoController;
+use App\Http\Controllers\SolicitacaoController;
+use App\Http\Controllers\TransporteController;
+use App\Http\Controllers\PadraoController;
+use App\Http\Controllers\LocalController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CertificateController;
@@ -24,6 +29,11 @@ Route::resource('equipamentos', EquipamentoController::class);
 Route::resource('calibracoes', CalibracaoController::class);
 Route::resource('lotes', LoteController::class);
 Route::resource('laboratorios', LaboratorioController::class);
+Route::resource('contratos', ContratoController::class);
+Route::resource('solicitacoes', SolicitacaoController::class);
+Route::resource('transportes', TransporteController::class);
+Route::resource('padroes', PadraoController::class);
+Route::resource('locais', LocalController::class);
 
 // Certificados
 Route::resource('certificates', CertificateController::class);

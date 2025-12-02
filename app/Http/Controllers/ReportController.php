@@ -104,7 +104,7 @@ class ReportController extends Controller
 
         // Custos por tipo de equipamento
         $custosPorTipo = Calibracao::select(
-            'equipamentos.tipo',
+            'equipamentos.equipamento_tipo as tipo',
             DB::raw('SUM(calibracoes.custo) as total_custo'),
             DB::raw('COUNT(*) as total_calibracoes'),
             DB::raw('AVG(calibracoes.custo) as media_custo')
@@ -112,7 +112,7 @@ class ReportController extends Controller
             ->join('equipamentos', 'calibracoes.equipamento_id', '=', 'equipamentos.id')
             ->whereYear('calibracoes.data_calibracao', $ano)
             ->whereNotNull('calibracoes.custo')
-            ->groupBy('equipamentos.tipo')
+            ->groupBy('equipamentos.equipamento_tipo')
             ->orderBy('total_custo', 'desc')
             ->get();
 

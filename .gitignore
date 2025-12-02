@@ -3,3 +3,11 @@
 /public/build
 /.env
 /database/database.sqlite
+
+# Pastas de referências e temporários (desenvolvimento)
+/____referencias
+/___delete___
+
+# Backups de banco de dados
+/database/*.backup*
+/database/*.sqlite.backup*

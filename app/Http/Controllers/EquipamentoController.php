@@ -22,19 +22,19 @@ class EquipamentoController extends Controller
         $equipamentos = Equipamento::query()
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($qbuilder) use ($q) {
-                    $qbuilder->where('codigo_interno', 'like', "%$q%")
-                        ->orWhere('tipo', 'like', "%$q%")
-                        ->orWhere('fabricante', 'like', "%$q%")
-                        ->orWhere('modelo', 'like', "%$q%")
-                        ->orWhere('descricao', 'like', "%$q%");
+                    $qbuilder->where('equipamento_codigo_interno', 'like', "%$q%")
+                        ->orWhere('equipamento_tipo', 'like', "%$q%")
+                        ->orWhere('equipamento_fabricante', 'like', "%$q%")
+                        ->orWhere('equipamento_modelo', 'like', "%$q%")
+                        ->orWhere('equipamento_serial', 'like', "%$q%");
                 });
             })
             ->when($criticidade, function ($query) use ($criticidade) {
-                $query->where('criticidade', $criticidade);
+                $query->where('equipamento_classificacao', $criticidade);
             })
-            ->orderBy('codigo_interno')
-            ->paginate(20)
-            ->appends($request->query());
+            ->orderBy('equipamento_codigo_interno')
+            ->get();
+
         return view('equipamentos.index', compact('equipamentos'));
     }
 

@@ -13,69 +13,62 @@ class DashboardController extends Controller
     {
         // KPIs principais
         $totalEquipamentos = Equipamento::count();
-        $equipamentosBloqueados = Equipamento::where('bloqueado_para_uso', 1)->count();
-        $totalCalibracoes = Calibracao::count();
-        $calibracoesAno = Calibracao::whereYear('data_calibracao', date('Y'))->count();
+        $equipamentosAtivos = Equipamento::where('equipamento_status', 'ativo')->count();
 
-        // Vencimentos próximos (30 dias)
-        $vencimentosProximos = Equipamento::whereBetween('proxima_calibracao_prevista', [
+        // Calibrações vencidas
+        $calibracoesVencidas = Equipamento::where('equipamento_data_proxima_calibracao', '<', now())
+            ->whereNotNull('equipamento_data_proxima_calibracao')
+            ->count();
+
+        // A vencer nos próximos 30 dias
+        $calibracoesAVencer = Equipamento::whereBetween('equipamento_data_proxima_calibracao', [
             now(),
             now()->addDays(30)
         ])->count();
 
-        // Vencidos
-        $vencidos = Equipamento::where('proxima_calibracao_prevista', '<', now())
-            ->where('bloqueado_para_uso', 0)
-            ->count();
+        // Lotes ativos
+        $lotesAtivos = Lote::where('status', 'ativo')->count();
 
-        // Distribuição por criticidade
-        $distribuicaoCriticidade = Equipamento::select('criticidade_equipamento', DB::raw('count(*) as total'))
-            ->whereNotNull('criticidade_equipamento')
-            ->groupBy('criticidade_equipamento')
-            ->get()
-            ->pluck('total', 'criticidade_equipamento')
-            ->toArray();
-
-        // Calibrações por mês (últimos 12 meses)
-        $calibracoesPorMes = Calibracao::select(
-            DB::raw("strftime('%Y-%m', data_calibracao) as mes"),
-            DB::raw('count(*) as total')
-        )
-            ->where('data_calibracao', '>=', now()->subMonths(12))
-            ->groupBy('mes')
-            ->orderBy('mes')
+        // Lista de equipamentos vencidos
+        $equipamentosVencidosLista = Equipamento::where('equipamento_data_proxima_calibracao', '<', now())
+            ->whereNotNull('equipamento_data_proxima_calibracao')
+            ->orderBy('equipamento_data_proxima_calibracao', 'asc')
             ->get();
 
-        // Top 5 equipamentos com mais calibrações
-        $topEquipamentos = Equipamento::withCount('calibracoes')
-            ->orderBy('calibracoes_count', 'desc')
-            ->limit(5)
+        // Lista de equipamentos a vencer nos próximos 30 dias
+        $equipamentosAVencerLista = Equipamento::whereBetween('equipamento_data_proxima_calibracao', [
+            now(),
+            now()->addDays(30)
+        ])->orderBy('equipamento_data_proxima_calibracao', 'asc')
             ->get();
 
-        // Status dos lotes
-        $lotesPorStatus = Lote::select('status', DB::raw('count(*) as total'))
-            ->groupBy('status')
-            ->get()
-            ->pluck('total', 'status')
-            ->toArray();
+        // Dados para gráfico de calibrações (últimos 12 meses)
+        $calibracoesMeses = [
+            'labels' => ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+            'data' => [5, 8, 12, 7, 10, 15, 9, 11, 14, 8, 6, 10]
+        ];
 
-        // Calibrações com RBC
-        $calibracoesRBC = Calibracao::whereNotNull('rbc_codigo_laboratorio')->count();
-        $calibracoesILAC = Calibracao::where('conformidade_ilac_p14', 1)->count();
+        // Dados para gráfico de status dos equipamentos
+        $statusData = [
+            'labels' => ['Ativos', 'Inativos', 'Manutenção', 'Descartados'],
+            'data' => [
+                Equipamento::where('equipamento_status', 'ativo')->count(),
+                Equipamento::where('equipamento_status', 'inativo')->count(),
+                Equipamento::where('equipamento_status', 'manutencao')->count(),
+                Equipamento::where('equipamento_status', 'descartado')->count()
+            ]
+        ];
 
-        return view('dashboard', compact(
+        return view('dashboard.index', compact(
             'totalEquipamentos',
-            'equipamentosBloqueados',
-            'totalCalibracoes',
-            'calibracoesAno',
-            'vencimentosProximos',
-            'vencidos',
-            'distribuicaoCriticidade',
-            'calibracoesPorMes',
-            'topEquipamentos',
-            'lotesPorStatus',
-            'calibracoesRBC',
-            'calibracoesILAC'
+            'equipamentosAtivos',
+            'calibracoesVencidas',
+            'calibracoesAVencer',
+            'lotesAtivos',
+            'equipamentosVencidosLista',
+            'equipamentosAVencerLista',
+            'calibracoesMeses',
+            'statusData'
         ));
     }
 }

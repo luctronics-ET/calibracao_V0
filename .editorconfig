@@ -1,0 +1,51 @@
+# EditorConfig - Configuração de Editor
+# https://editorconfig.org
+
+root = true
+
+# Configuração padrão para todos os arquivos
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# YAML
+[*.{yml,yaml}]
+indent_size = 2
+
+# JSON
+[*.json]
+indent_size = 2
+
+# JavaScript e Vue
+[*.{js,jsx,vue}]
+indent_size = 2
+
+# Blade Templates
+[*.blade.php]
+indent_size = 4
+
+# PHP
+[*.php]
+indent_size = 4
+
+# Arquivos de configuração
+[{package.json,.travis.yml}]
+indent_size = 2
+
+# Makefiles
+[Makefile]
+indent_style = tab
+
+# Arquivos da pasta ____referencias (não impor regras rígidas)
+[____referencias/**]
+trim_trailing_whitespace = false
+insert_final_newline = false

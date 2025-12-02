@@ -1,0 +1,53 @@
+# Git Attributes - Configuração de versionamento
+# https://git-scm.com/docs/gitattributes
+
+# Normalização de line endings
+* text=auto eol=lf
+
+# Arquivos que devem sempre ter LF (Unix)
+*.php text eol=lf
+*.js text eol=lf
+*.vue text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+Dockerfile text eol=lf
+.env.example text eol=lf
+
+# Arquivos que devem sempre ter CRLF (Windows)
+*.bat text eol=crlf
+
+# Arquivos binários
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+
+# Documentação
+*.md diff=markdown
+
+# PHP
+*.php diff=php linguist-language=PHP
+
+# Ignorar arquivos de desenvolvimento em exports
+.gitignore export-ignore
+.gitattributes export-ignore
+.editorconfig export-ignore
+phpunit.xml export-ignore
+____referencias/ export-ignore
+___delete___/ export-ignore
+tests/ export-ignore
+docker/ export-ignore
+Dockerfile export-ignore
+docker-compose.yml export-ignore
+.dockerignore export-ignore
+README.md export-ignore
+DEVELOPMENT.md export-ignore
+*.backup export-ignore

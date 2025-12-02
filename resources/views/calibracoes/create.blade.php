@@ -1,134 +1,164 @@
 @extends('layouts.app')
 
+@section('title', 'Nova Calibração - CalibSys')
+
+@section('page-title', 'Nova Calibração')
+
+@section('breadcrumb')
+<nav class="flex mb-6" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+            <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                <i class="fas fa-home mr-2"></i>
+                Dashboard
+            </a>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                <a href="{{ route('calibracoes.index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">Calibrações</a>
+            </div>
+        </li>
+        <li aria-current="page">
+            <div class="flex items-center">
+                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Nova</span>
+            </div>
+        </li>
+    </ol>
+</nav>
+@endsection
+
 @section('content')
-    <div class="container mx-auto px-4 py-8">
-        <div class="max-w-3xl mx-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold text-gray-800">Nova Calibração</h1>
-                <a href="{{ route('calibracoes.index') }}"
-                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
-                    Voltar
-                </a>
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+        <i class="fas fa-plus-circle text-blue-600 mr-2"></i>
+        Cadastrar Nova Calibração
+    </h2>
+</div>
+
+<form action="{{ route('calibracoes.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+    @csrf
+
+    <!-- Informações Principais -->
+    <x-card title="Informações Principais" icon="fas fa-info-circle">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <x-select
+                label="Equipamento"
+                name="equipamento_id"
+                :options="$equipamentos->pluck('equipamento_tipo', 'id')->toArray()"
+                :selected="old('equipamento_id')"
+                :error="$errors->first('equipamento_id')"
+                required
+            />
+
+            <x-select
+                label="Laboratório"
+                name="laboratorio_id"
+                :options="$laboratorios->pluck('nome', 'id')->toArray()"
+                :selected="old('laboratorio_id')"
+                :error="$errors->first('laboratorio_id')"
+                required
+            />
+
+            <x-input
+                type="date"
+                label="Data da Calibração"
+                name="data_calibracao"
+                :value="old('data_calibracao')"
+                :error="$errors->first('data_calibracao')"
+                required
+            />
+
+            <x-input
+                label="Número do Certificado"
+                name="numero_certificado"
+                placeholder="Ex: CAL-2025-001"
+                :value="old('numero_certificado')"
+                :error="$errors->first('numero_certificado')"
+            />
+        </div>
+    </x-card>
+
+    <!-- Resultado da Calibração -->
+    <x-card title="Resultado da Calibração" icon="fas fa-check-circle">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <x-select
+                label="Resultado"
+                name="resultado"
+                :options="[
+                    'aprovado' => 'Aprovado',
+                    'reprovado' => 'Reprovado',
+                    'condicional' => 'Condicional',
+                    'pendente' => 'Pendente'
+                ]"
+                :selected="old('resultado', 'pendente')"
+                :error="$errors->first('resultado')"
+                required
+            />
+
+            <x-input
+                type="date"
+                label="Próxima Calibração"
+                name="proxima_calibracao"
+                :value="old('proxima_calibracao')"
+                :error="$errors->first('proxima_calibracao')"
+            />
+
+            <div class="md:col-span-2">
+                <x-textarea
+                    label="Observações"
+                    name="observacoes"
+                    rows="4"
+                    placeholder="Observações sobre a calibração..."
+                    :value="old('observacoes')"
+                    :error="$errors->first('observacoes')"
+                />
+            </div>
+        </div>
+    </x-card>
+
+    <!-- Documentos -->
+    <x-card title="Documentos" icon="fas fa-file-pdf">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Certificado de Calibração (PDF)
+                </label>
+                <input
+                    type="file"
+                    name="certificado_pdf"
+                    accept=".pdf"
+                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 px-4 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                @if($errors->has('certificado_pdf'))
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $errors->first('certificado_pdf') }}</p>
+                @endif
             </div>
 
-            @if ($errors->any())
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    <ul class="list-disc list-inside">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <form action="{{ route('calibracoes.store') }}" method="POST" enctype="multipart/form-data" class="bg-white shadow-md rounded px-8 pt-6 pb-8">
-                @csrf
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="equipamento_id">
-                            Equipamento <span class="text-red-500">*</span>
-                        </label>
-                        <select name="equipamento_id" id="equipamento_id"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('equipamento_id') border-red-500 @enderror"
-                            required>
-                            <option value="">Selecione um equipamento</option>
-                            @foreach($equipamentos as $equipamento)
-                                <option value="{{ $equipamento->id }}" {{ old('equipamento_id') == $equipamento->id ? 'selected' : '' }}>
-                                    {{ $equipamento->codigo_interno }} - {{ $equipamento->tipo }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('equipamento_id')
-                            <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="data_calibracao">
-                            Data de Calibração <span class="text-red-500">*</span>
-                        </label>
-                        <input type="date" name="data_calibracao" id="data_calibracao" value="{{ old('data_calibracao') }}"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('data_calibracao') border-red-500 @enderror"
-                            required>
-                        @error('data_calibracao')
-                            <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="data_validade">
-                            Data de Validade <span class="text-red-500">*</span>
-                        </label>
-                        <input type="date" name="data_validade" id="data_validade" value="{{ old('data_validade') }}"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('data_validade') border-red-500 @enderror"
-                            required>
-                        @error('data_validade')
-                            <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="certificado_num">
-                            Número do Certificado
-                        </label>
-                        <input type="text" name="certificado_num" id="certificado_num" value="{{ old('certificado_num') }}"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="resultado">
-                            Resultado
-                        </label>
-                        <select name="resultado" id="resultado"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="">Selecione</option>
-                            <option value="aprovado" {{ old('resultado') == 'aprovado' ? 'selected' : '' }}>Aprovado</option>
-                            <option value="reprovado" {{ old('resultado') == 'reprovado' ? 'selected' : '' }}>Reprovado
-                            </option>
-                            <option value="condicional" {{ old('resultado') == 'condicional' ? 'selected' : '' }}>Condicional
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="laboratorio_nome">
-                            Nome do Laboratório
-                        </label>
-                        <input type="text" name="laboratorio_nome" id="laboratorio_nome"
-                            value="{{ old('laboratorio_nome') }}"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-
-                    <div class="col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="observacoes">
-                            Observações
-                        </label>
-                        <textarea name="observacoes" id="observacoes" rows="4"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ old('observacoes') }}</textarea>
-                    </div>
-
-                    <div class="col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="arquivo_certificado">
-                            📄 Certificado de Calibração (PDF)
-                        </label>
-                        <input type="file" name="arquivo_certificado" id="arquivo_certificado" accept=".pdf"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <p class="text-gray-500 text-xs mt-1">Formato aceito: PDF (máx. 10MB)</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-end mt-8 gap-4">
-                    <a href="{{ route('calibracoes.index') }}"
-                        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                        Cancelar
-                    </a>
-                    <button type="submit"
-                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                        Salvar Calibração
-                    </button>
-                </div>
-            </form>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Outros Anexos
+                </label>
+                <input
+                    type="file"
+                    name="anexos[]"
+                    multiple
+                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 px-4 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+            </div>
         </div>
+    </x-card>
+
+    <!-- Botões de Ação -->
+    <div class="flex items-center justify-end gap-3">
+        <x-button variant="outline" icon="fas fa-times" :href="route('calibracoes.index')">
+            Cancelar
+        </x-button>
+
+        <x-button variant="primary" type="submit" icon="fas fa-save">
+            Salvar Calibração
+        </x-button>
     </div>
+</form>
 @endsection

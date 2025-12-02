@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Contrato;
+use App\Models\ContratoServico;
 use App\Models\Laboratorio;
 use Illuminate\Support\Facades\DB;
 
@@ -53,7 +53,7 @@ class ContratoSeeder extends Seeder
         ];
 
         foreach ($contratos as $contrato) {
-            Contrato::create($contrato);
+            ContratoServico::create($contrato);
         }
 
         $this->command->info('Contratos criados com sucesso!');

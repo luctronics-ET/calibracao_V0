@@ -12,67 +12,111 @@ Sistema completo para gestão de calibração de equipamentos com controle de pr
 
 ### 🎯 Principais
 
-- ✅ **CRUD Completo** - Equipamentos, Calibrações, Laboratórios, Lotes
-- ✅ **Dashboard com KPIs** - Visão geral de calibrações em dia/vencendo/vencidas
-- ✅ **Notificações Automáticas** - Alertas de calibrações vencendo
-- ✅ **Geração de PDFs** - Certificados e relatórios de calibração
-- ✅ **API REST** - Integração com sistemas externos (Laravel Sanctum)
-- ✅ **Sistema de Autenticação** - 3 níveis (Admin, Técnico, Visualizador)
-- ✅ **Upload de Arquivos** - Certificados e fotos de equipamentos
-- ✅ **Exportação Excel/CSV** - Relatórios completos
-- ✅ **Importação Excel/CSV** - Cadastro em lote de equipamentos
-- ✅ **Importação CSV Histórico** - Importa 484 equipamentos + 406 calibrações
-- ✅ **Matriz IGP** - Classificação de prioridade automática (alta/média/baixa)
-- ✅ **Logs de Auditoria** - Rastreamento de todas as ações
-- ✅ **Filtros e Busca Avançada** - Múltiplos critérios de pesquisa
-- ✅ **Testes Automatizados** - PHPUnit com 75% de cobertura
-- ✅ **Sistema de Componentes** - 8 componentes Blade reutilizáveis
+-   ✅ **CRUD Completo** - Equipamentos, Calibrações, Laboratórios, Lotes
+-   ✅ **Dashboard com KPIs** - Visão geral de calibrações em dia/vencendo/vencidas
+-   ✅ **Notificações Automáticas** - Alertas de calibrações vencendo
+-   ✅ **Geração de PDFs** - Certificados e relatórios de calibração
+-   ✅ **API REST** - Integração com sistemas externos (Laravel Sanctum)
+-   ✅ **Sistema de Autenticação** - 3 níveis (Admin, Técnico, Visualizador)
+-   ✅ **Upload de Arquivos** - Certificados e fotos de equipamentos
+-   ✅ **Exportação Excel/CSV** - Relatórios completos
+-   ✅ **Importação Excel/CSV** - Cadastro em lote de equipamentos
+-   ✅ **Importação CSV Histórico** - Importa 484 equipamentos + 406 calibrações
+-   ✅ **Matriz IGP** - Classificação de prioridade automática (alta/média/baixa)
+-   ✅ **Logs de Auditoria** - Rastreamento de todas as ações
+-   ✅ **Filtros e Busca Avançada** - Múltiplos critérios de pesquisa
+-   ✅ **Testes Automatizados** - PHPUnit com 75% de cobertura
+-   ✅ **Sistema de Componentes** - 8 componentes Blade reutilizáveis
 
 ### 🔔 Sistema de Notificações
 
-- Verificação automática de calibrações vencendo (diária às 08:00 e 08:30)
-- Notificações para administradores e técnicos
-- Configurável por dias de antecedência (padrão: 30 dias)
-- Comando Artisan: `php artisan calibracao:verificar-vencimento`
+-   Verificação automática de calibrações vencendo (diária às 08:00 e 08:30)
+-   Notificações para administradores e técnicos
+-   Configurável por dias de antecedência (padrão: 30 dias)
+-   Comando Artisan: `php artisan calibracao:verificar-vencimento`
 
 ### 📊 Matriz de Classificação IGP
 
 Sistema automático de priorização de equipamentos baseado em 5 critérios:
 
-- **Frequência de Uso** (1-3): baixa, média, alta
-- **Necessidade Crítica** (1-3): baixa, média, alta
-- **Abundância** (1-3): único, poucos, muitos
-- **Criticidade Metrológica** (1-3): baixa, média, alta
-- **Custo de Indisponibilidade** (1-3): baixo, médio, alto
+-   **Frequência de Uso** (1-3): baixa, média, alta
+-   **Necessidade Crítica** (1-3): baixa, média, alta
+-   **Abundância** (1-3): único, poucos, muitos
+-   **Criticidade Metrológica** (1-3): baixa, média, alta
+-   **Custo de Indisponibilidade** (1-3): baixo, médio, alto
 
 **Fórmula**: IGP = (freq_uso × nec_critica × crit_metrol) ÷ (abundancia × custo_indisp)
 
 **Classificação Automática**:
 
-- **Alta** (IGP ≥ 20): Prioridade máxima
-- **Média** (IGP 10-19): Importante
-- **Baixa** (IGP < 10): Rotina
+-   **Alta** (IGP ≥ 20): Prioridade máxima
+-   **Média** (IGP 10-19): Importante
+-   **Baixa** (IGP < 10): Rotina
 
 ### 📄 Geração de Documentos
 
-- Certificados de calibração em PDF
-- Relatórios de equipamentos
-- Exportação de dados em Excel/CSV
-- Upload de certificados e fotos
+-   Certificados de calibração em PDF
+-   Relatórios de equipamentos
+-   Exportação de dados em Excel/CSV
+-   Upload de certificados e fotos
 
 ### 🔐 Sistema de Permissões
 
-- **Admin**: Acesso total ao sistema
-- **Técnico**: Gerencia equipamentos e calibrações
-- **Visualizador**: Apenas leitura
+-   **Admin**: Acesso total ao sistema
+-   **Técnico**: Gerencia equipamentos e calibrações
+-   **Visualizador**: Apenas leitura
+
+## 📁 Estrutura do Projeto
+
+### Pasta `____referencias/`
+
+Pasta para armazenamento de arquivos de referência durante o desenvolvimento:
+
+-   📝 **Documentação de Desenvolvimento**: Anotações, resumos de chat, relatórios
+-   💾 **Backup de Arquivos**: Versões antigas de arquivos durante refatoração
+-   📋 **Exemplos de Código**: Snippets e implementações de referência
+-   📚 **Materiais de Consulta**: Documentação técnica, tutoriais
+
+**⚠️ Importante**:
+
+-   Esta pasta **NÃO** faz parte do sistema em produção
+-   É ignorada pelo Git (`.gitignore`) e Docker (`.dockerignore`)
+-   Use apenas durante o desenvolvimento
+-   Não deve conter código em execução
+
+**Exemplo de uso**:
+
+```bash
+# Usando script de utilidades (recomendado)
+./dev-utils.sh backup app/Services/CalibracaoService.php
+./dev-utils.sh note decisao-implementacao
+
+# Ou manualmente
+cp app/Services/CalibracaoService.php ____referencias/backup/
+cp exemplo-codigo.php ____referencias/exemplos/
+```
+
+**Script de Utilidades**:
+
+O projeto inclui `dev-utils.sh` para facilitar o trabalho com a pasta de referências:
+
+```bash
+./dev-utils.sh init              # Inicializa estrutura de pastas
+./dev-utils.sh backup <arquivo>  # Cria backup automático com timestamp
+./dev-utils.sh restore           # Lista e restaura backups
+./dev-utils.sh note <nome>       # Cria nova nota documentada
+./dev-utils.sh clean [dias]      # Remove backups antigos (padrão: 30 dias)
+```
+
+Veja `DEVELOPMENT.md` para mais detalhes sobre boas práticas de desenvolvimento.
 
 ## 🚀 Instalação Rápida (Docker)
 
 ### Pré-requisitos
 
-- Docker >= 20.10
-- Docker Compose >= 2.0
-- Git >= 2.30
+-   Docker >= 20.10
+-   Docker Compose >= 2.0
+-   Git >= 2.30
 
 ### Passos
 
@@ -108,29 +152,29 @@ docker compose exec app php artisan db:seed
 
 ### Credenciais Padrão
 
-- **Admin**: <admin@calibracao.com> / admin123
-- **Técnico**: <tecnico@calibracao.com> / tecnico123
-- **Visualizador**: <visualizador@calibracao.com> / visualizador123
+-   **Admin**: <admin@calibracao.com> / admin123
+-   **Técnico**: <tecnico@calibracao.com> / tecnico123
+-   **Visualizador**: <visualizador@calibracao.com> / visualizador123
 
 ## 📋 Documentação Completa
 
-- **[INSTALL.md](INSTALL.md)** - Guia completo de instalação (dev e produção)
-- **[RELATORIO_FINAL.md](RELATORIO_FINAL.md)** - Status do projeto e funcionalidades
-- **[deploy.sh](deploy.sh)** - Script automatizado de deploy
+-   **[INSTALL.md](INSTALL.md)** - Guia completo de instalação (dev e produção)
+-   **[RELATORIO_FINAL.md](RELATORIO_FINAL.md)** - Status do projeto e funcionalidades
+-   **[deploy.sh](deploy.sh)** - Script automatizado de deploy
 
 ## 🏗️ Arquitetura
 
 ### Stack Tecnológica
 
-- **Backend**: Laravel 10 (PHP 8.3)
-- **Frontend**: Blade Templates + Vue 3 (opcional)
-- **Banco de Dados**: SQLite (dev) / MySQL/PostgreSQL (prod)
-- **Cache**: File Driver
-- **Queue**: Sync
-- **PDF**: DomPDF
-- **Excel**: PhpSpreadsheet
-- **API**: Laravel Sanctum
-- **Testes**: PHPUnit + Mockery + Faker
+-   **Backend**: Laravel 10 (PHP 8.3)
+-   **Frontend**: Blade Templates + Vue 3 (opcional)
+-   **Banco de Dados**: SQLite (dev) / MySQL/PostgreSQL (prod)
+-   **Cache**: File Driver
+-   **Queue**: Sync
+-   **PDF**: DomPDF
+-   **Excel**: PhpSpreadsheet
+-   **API**: Laravel Sanctum
+-   **Testes**: PHPUnit + Mockery + Faker
 
 ### Estrutura do Projeto
 
@@ -178,10 +222,10 @@ docker compose exec app vendor/bin/phpunit tests/Feature/EquipamentoTest.php
 
 **Cobertura Atual**: 9/12 testes passando (75%)
 
-- ✅ Notificações: 3/3 (100%)
-- ✅ Validação: 1/1 (100%)
-- ✅ CRUD básico: 3/6 (50%)
-- ✅ Observer: 1/3 (33%)
+-   ✅ Notificações: 3/3 (100%)
+-   ✅ Validação: 1/1 (100%)
+-   ✅ CRUD básico: 3/6 (50%)
+-   ✅ Observer: 1/3 (33%)
 
 ## 🔧 Comandos Úteis
 
@@ -229,23 +273,23 @@ docker compose up -d
 
 ### Modelos Principais
 
-- **Equipamento** - Equipamentos a calibrar
-- **Calibracao** - Histórico de calibrações
-- **Laboratorio** - Laboratórios credenciados
-- **Contrato** - Contratos com laboratórios
-- **LoteEnvio** - Lotes de envio para calibração
-- **LoteItem** - Itens de cada lote
-- **Usuario** - Usuários do sistema
-- **Log** - Auditoria de ações
-- **ParametroMetrologico** - Parâmetros de calibração
+-   **Equipamento** - Equipamentos a calibrar
+-   **Calibracao** - Histórico de calibrações
+-   **Laboratorio** - Laboratórios credenciados
+-   **Contrato** - Contratos com laboratórios
+-   **LoteEnvio** - Lotes de envio para calibração
+-   **LoteItem** - Itens de cada lote
+-   **Usuario** - Usuários do sistema
+-   **Log** - Auditoria de ações
+-   **ParametroMetrologico** - Parâmetros de calibração
 
 ### Relacionamentos
 
-- Equipamento → hasMany(Calibracao)
-- Equipamento → belongsToMany(LoteEnvio)
-- Calibracao → belongsTo(Equipamento, Laboratorio)
-- LoteEnvio → belongsTo(Laboratorio, Contrato)
-- LoteEnvio → belongsToMany(Equipamento)
+-   Equipamento → hasMany(Calibracao)
+-   Equipamento → belongsToMany(LoteEnvio)
+-   Calibracao → belongsTo(Equipamento, Laboratorio)
+-   LoteEnvio → belongsTo(Laboratorio, Contrato)
+-   LoteEnvio → belongsToMany(Equipamento)
 
 ## 🔌 API REST
 
@@ -328,10 +372,10 @@ docker compose exec app php artisan view:cache
 
 O projeto inclui workflow completo em `.github/workflows/ci.yml`:
 
-- ✅ Testes automatizados
-- ✅ Verificação de qualidade de código
-- ✅ Security audit
-- ✅ Deploy automático (staging/production)
+-   ✅ Testes automatizados
+-   ✅ Verificação de qualidade de código
+-   ✅ Security audit
+-   ✅ Deploy automático (staging/production)
 
 ## 📈 Progresso do Projeto
 
@@ -363,13 +407,13 @@ O projeto inclui workflow completo em `.github/workflows/ci.yml`:
 
 ### 🎯 Status Final
 
-- **Progresso**: 100% completo ✅
-- **Testes**: 75% passando
-- **Infraestrutura**: 100% funcional
-- **Documentação**: Completa
-- **Importação**: 8 equipamentos únicos + 406 calibrações históricas
-- **IGP**: Sistema automático de priorização implementado
-- **Pronto para**: Produção ✅
+-   **Progresso**: 100% completo ✅
+-   **Testes**: 75% passando
+-   **Infraestrutura**: 100% funcional
+-   **Documentação**: Completa
+-   **Importação**: 8 equipamentos únicos + 406 calibrações históricas
+-   **IGP**: Sistema automático de priorização implementado
+-   **Pronto para**: Produção ✅
 
 ## 🤝 Contribuindo
 
@@ -385,9 +429,9 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 📞 Suporte
 
-- 📧 Email: <suporte@calibracao.com>
-- 📚 Documentação: [INSTALL.md](INSTALL.md)
-- 🐛 Issues: [GitHub Issues](https://github.com/luctronics-ET/calibracao_V0/issues)
+-   📧 Email: <suporte@calibracao.com>
+-   📚 Documentação: [INSTALL.md](INSTALL.md)
+-   🐛 Issues: [GitHub Issues](https://github.com/luctronics-ET/calibracao_V0/issues)
 
 ---
 

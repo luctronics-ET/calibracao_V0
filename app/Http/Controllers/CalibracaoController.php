@@ -3,19 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Calibracao;
+use App\Models\Equipamento;
+use App\Models\Laboratorio;
 use Illuminate\Http\Request;
 
 class CalibracaoController extends Controller
 {
     public function index()
     {
-        $calibracoes = Calibracao::with(['equipamento', 'laboratorio'])->paginate(20);
+        $calibracoes = Calibracao::with(['equipamento', 'laboratorio'])->get();
         return view('calibracoes.index', compact('calibracoes'));
     }
 
     public function create()
     {
-        return view('calibracoes.create');
+        $equipamentos = Equipamento::all();
+        $laboratorios = Laboratorio::all();
+        return view('calibracoes.create', compact('equipamentos', 'laboratorios'));
     }
 
     public function store(Request $request)
@@ -31,7 +35,9 @@ class CalibracaoController extends Controller
 
     public function edit(Calibracao $calibracao)
     {
-        return view('calibracoes.edit', compact('calibracao'));
+        $equipamentos = Equipamento::all();
+        $laboratorios = Laboratorio::all();
+        return view('calibracoes.edit', compact('calibracao', 'equipamentos', 'laboratorios'));
     }
 
     public function update(Request $request, Calibracao $calibracao)
