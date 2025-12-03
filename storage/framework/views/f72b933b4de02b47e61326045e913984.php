@@ -89,17 +89,20 @@
 <?php $__env->startPush('scripts'); ?>
 <script>
 $(document).ready(function() {
-    var table = $('#<?php echo e($id); ?>').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
-        },
-        responsive: true,
-        pageLength: 20,
-        lengthMenu: [[10, 20, 50, 100, -1], [10, 20, 50, 100, "Todos"]],
-        lengthChange: true,
-        order: [[0, 'desc']],
-        dom: 'Blfrtip',
-        buttons: [
+    try {
+        var table = $('#<?php echo e($id); ?>').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+            },
+            responsive: true,
+            pageLength: 20,
+            lengthMenu: [[10, 20, 50, 100, -1], [10, 20, 50, 100, "Todos"]],
+            lengthChange: true,
+            order: [[0, 'desc']],
+            dom: 'Blfrtip',
+            deferRender: true,
+            processing: false,
+            buttons: [
             <?php if($exportable): ?>
             {
                 extend: 'excel',
@@ -142,6 +145,10 @@ $(document).ready(function() {
             });
         }
     });
+    } catch(e) {
+        console.error('Erro ao inicializar DataTable:', e);
+        alert('Erro ao carregar tabela: ' + e.message);
+    }
 });
 </script>
 <?php $__env->stopPush(); ?>
